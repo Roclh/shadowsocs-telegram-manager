@@ -27,7 +27,6 @@ public class RegisterCommand extends AbstractCommand {
                 .telegramName(update.getMessage().getFrom().getUserName())
                 .usedPort(null)
                 .isAdded(false)
-                .isEnabled(false)
                 .build());
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));

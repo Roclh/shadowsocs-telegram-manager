@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.Roclh.utils.ScriptRunner.isShScriptExists;
+
 @Component
 @Slf4j
 public class EchoCommand extends AbstractCommand {
@@ -31,7 +33,7 @@ public class EchoCommand extends AbstractCommand {
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        if (!isShScriptExists()) {
+        if (!isShScriptExists(scriptPath)) {
             ScriptRunner.createShScript(scriptContent, scriptPath);
         }
         if (executeShScript()) {
@@ -50,10 +52,6 @@ public class EchoCommand extends AbstractCommand {
     @Override
     public List<String> getCommandNames() {
         return List.of("echo", "e");
-    }
-
-    private boolean isShScriptExists() {
-        return Files.exists(Path.of(scriptPath));
     }
 
     private boolean executeShScript() {

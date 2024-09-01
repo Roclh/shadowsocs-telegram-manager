@@ -21,4 +21,9 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
     @Modifying
     @Query("update UserModel u set u.password = ?1 where u.telegramId = ?2")
     int updatePasswordByTelegramId(String password, String telegramId);
+
+    @Transactional
+    @Modifying
+    @Query("update UserModel u set u.isAdded = ?1 where u.telegramId = ?2")
+    int updateIsAddedByTelegramId(boolean isAdded, String telegramId);
 }

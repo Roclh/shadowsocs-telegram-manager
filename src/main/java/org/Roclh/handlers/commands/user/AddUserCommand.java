@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import org.Roclh.data.model.user.UserModel;
 import org.Roclh.data.model.user.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
@@ -12,6 +13,7 @@ import java.util.List;
 @Component
 public class AddUserCommand extends AbstractCommand {
     private final UserService userManager;
+
     public AddUserCommand(PropertiesContainer propertiesContainer, UserService userManager) {
         super(propertiesContainer);
         this.userManager = userManager;
@@ -23,27 +25,32 @@ public class AddUserCommand extends AbstractCommand {
         if (words.length < 4) {
             return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build();
         }
+        long chatId = update.getMessage().getChatId();
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+
 
         String telegramId = words[1];
         String port = words[2];
         String password = words[3];
 
-        boolean isAdded = userManager.getUser(telegramId)
-                .map(userModel -> {
-                    userModel.setUsedPort(port);
-                    userModel.setAdded(true);
-                    userModel.setPassword(password);
-                    userManager.saveUser(userModel);
-                    return userModel.isAdded();
-                }).orElse(false);
-        long chatId = update.getMessage().getChatId();
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatId));
-        if (isAdded) {
-            sendMessage.setText("User with id " + telegramId + " was added successfully!");
-        } else {
+        UserModel userModel = userManager.getUser(telegramId)
+                .orElse(null);
+        if (userModel == null) {
             sendMessage.setText("User with id " + telegramId + "was not added! Either it exists or failed to add");
+            return sendMessage;
         }
+        userModel.setUsedPort(port);
+        userModel.setPassword(password);
+        userModel.setAdded(true);
+
+        boolean isScriptExecuted = userManager.executeShScriptAddUser(userModel);
+        if (isScriptExecuted) {
+            userManager.saveUser(userModel);
+            sendMessage.setText("User with id " + telegramId + " was added successfully!");
+            return sendMessage;
+        }
+        sendMessage.setText("User with id " + telegramId + " was not added! Either it exists or failed to add");
         return sendMessage;
     }
 

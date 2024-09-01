@@ -30,13 +30,11 @@ public class UserModel {
     private String usedPort;
     private String password;
     private boolean isAdded;
-    private boolean isEnabled;
     @Override
     public String toString() {
         return "[" + telegramId + ":'" + telegramName + "']: " +
                 " usedPort='" + usedPort + '\'' +
                 ", isAdded=" + isAdded +
-                ", isEnabled=" + isEnabled +
                 ", password=" + password;
     }
 }
