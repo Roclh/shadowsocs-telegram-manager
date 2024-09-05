@@ -1,6 +1,7 @@
 package org.Roclh.handlers.commands.sh;
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
 import org.Roclh.utils.ScriptRunner;
@@ -8,8 +9,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.Roclh.utils.ScriptRunner.isShScriptExists;
@@ -24,9 +23,10 @@ public class EchoCommand extends AbstractCommand {
                                 
                 """;
 
-    public EchoCommand(PropertiesContainer propertiesContainer) {
-        super(propertiesContainer);
+    public EchoCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
+        super(propertiesContainer, managerService);
     }
+
 
     @Override
     public SendMessage handle(Update update) {

@@ -1,6 +1,7 @@
 package org.Roclh.handlers.commands.manager;
 
 import org.Roclh.bot.TelegramBotProperties;
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
@@ -12,27 +13,24 @@ import java.util.stream.Collectors;
 
 @Component
 public class DeleteManagerCommand extends AbstractCommand {
-
-    private final PropertiesContainer propertiesContainer;
     private final TelegramBotProperties telegramBotProperties;
 
-    public DeleteManagerCommand(PropertiesContainer propertiesContainer, PropertiesContainer propertiesContainer1, TelegramBotProperties telegramBotProperties) {
-        super(propertiesContainer);
-        this.propertiesContainer = propertiesContainer1;
+    public DeleteManagerCommand(PropertiesContainer propertiesContainer, ManagerService managerService, TelegramBotProperties telegramBotProperties) {
+        super(propertiesContainer, managerService);
         this.telegramBotProperties = telegramBotProperties;
     }
 
     @Override
     public SendMessage handle(Update update) {
         String[] words = update.getMessage().getText().split(" ");
-        if(words.length < 2){
+        if (words.length < 2) {
             return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build();
         }
         String managerId = words[1];
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        if (propertiesContainer.delProperty(PropertiesContainer.MANAGERS_KEY, managerId) && !telegramBotProperties.getDefaultManagerId().equals(managerId)) {
+        if (!telegramBotProperties.getDefaultManagerId().equals(managerId) && managerService.delManager(managerId)) {
             sendMessage.setText("Manager with id " + managerId + " was deleted successfully!");
         } else {
             sendMessage.setText("Manager with id " + managerId + " was not deleted. Managers that exists:\n" +

@@ -1,10 +1,12 @@
 package org.Roclh.ss;
 
-import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 
 import javax.validation.constraints.NotBlank;
 import java.io.FileWriter;
@@ -18,7 +20,8 @@ public class ShadowsocksProperties {
     @NotBlank
     private String address;
 
-    @PostConstruct
+    @EventListener(ContextRefreshedEvent.class)
+    @Order(0)
     public void init() {
         try (FileWriter fileWriter = new FileWriter("/etc/shadowsocks-libev/config-example.json")) {
             String configuration = """
@@ -32,8 +35,9 @@ public class ShadowsocksProperties {
                         "method":"chacha20-ietf-poly1305"
                     }
                     """;
-            configuration.replace("${address}", this.address);
+            configuration = configuration.replace("${address}", this.address);
             fileWriter.write(configuration);
+            log.info("Created a configuration file with content {}", configuration);
         } catch (IOException e) {
             log.error("Failed to create a file", e);
         }

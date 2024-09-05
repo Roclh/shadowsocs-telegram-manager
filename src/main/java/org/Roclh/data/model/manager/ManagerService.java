@@ -4,7 +4,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.repositories.ManagerRepository;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -22,6 +25,14 @@ public class ManagerService {
         }
     }
 
+    @Nullable
+    public ManagerModel getManager(String managerId){
+        return managerRepository.findByTelegramId(managerId);
+    }
+
+    public List<ManagerModel> getManagers(){
+        return managerRepository.findAll();
+    }
     public boolean delManager(@NonNull String telegramId){
         return managerRepository.deleteByTelegramId(telegramId) > 0;
     }

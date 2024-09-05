@@ -2,7 +2,7 @@
 
 chcp 65001
 
-call mvn clean package -DskipTests
+call mvn clean package
 
 echo Deleting previous jar
 del "%CD%\src\main\docker\*.jar"

@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.common;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.Command;
@@ -18,8 +19,9 @@ import java.util.Objects;
 
 @Component
 public class StartCommand extends AbstractCommand {
-    public StartCommand(PropertiesContainer propertiesContainer) {
-        super(propertiesContainer);
+
+    public StartCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
+        super(propertiesContainer, managerService);
     }
 
     @Override

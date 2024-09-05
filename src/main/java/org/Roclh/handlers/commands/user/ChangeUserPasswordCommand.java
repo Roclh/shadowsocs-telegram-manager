@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.data.model.user.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
@@ -13,8 +14,8 @@ import java.util.List;
 public class ChangeUserPasswordCommand extends AbstractCommand {
     private final UserService userManager;
 
-    public ChangeUserPasswordCommand(PropertiesContainer propertiesContainer, UserService userManager) {
-        super(propertiesContainer);
+    public ChangeUserPasswordCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
+        super(propertiesContainer, managerService);
         this.userManager = userManager;
     }
 
@@ -24,18 +25,20 @@ public class ChangeUserPasswordCommand extends AbstractCommand {
         if (words.length < 3) {
             return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build();
         }
+        long chatId = update.getMessage().getChatId();
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
 
         String telegramId = words[1];
         String password = words[2];
 
         boolean isChanged = userManager.changePassword(telegramId, password);
-        long chatId = update.getMessage().getChatId();
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatId));
         if (isChanged) {
-            sendMessage.setText("Password for user with id " + telegramId + " was changed successfully!");
-        } else {
-            sendMessage.setText("Password for user with id " + telegramId + " was not changed! Either it is the same or failed to change");
+            if(userManager.getUser(telegramId).map(userManager::executeShScriptChangePassword).orElse(false)){
+                sendMessage.setText("Successfully changed password for user with id " + telegramId);
+            }else {
+                sendMessage.setText("Failed to change password for user with id " + telegramId);
+            }
         }
         return sendMessage;
     }

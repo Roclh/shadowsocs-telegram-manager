@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.data.model.user.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
@@ -18,10 +19,11 @@ public class ChangeUserEnabledCommand extends AbstractCommand {
 
     private final UserService userService;
 
-    public ChangeUserEnabledCommand(PropertiesContainer propertiesContainer, UserService userService) {
-        super(propertiesContainer);
+    public ChangeUserEnabledCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userService) {
+        super(propertiesContainer, managerService);
         this.userService = userService;
     }
+
 
     @Override
     public SendMessage handle(Update update) {

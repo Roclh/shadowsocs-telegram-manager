@@ -1,5 +1,6 @@
 package org.Roclh.commands;
 
+import org.Roclh.data.model.user.UserModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.Mockito;

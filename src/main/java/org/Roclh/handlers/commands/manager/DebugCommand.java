@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.manager;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
@@ -11,8 +12,9 @@ import java.util.List;
 @Component
 public class DebugCommand extends AbstractCommand {
 
-    public DebugCommand(PropertiesContainer propertiesContainer) {
-        super(propertiesContainer);
+
+    public DebugCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
+        super(propertiesContainer, managerService);
     }
 
     @Override

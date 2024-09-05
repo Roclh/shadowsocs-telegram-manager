@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.data.model.user.UserService;
 import org.Roclh.utils.PropertiesContainer;
@@ -14,8 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DeleteUserCommand extends AbstractCommand {
     public final UserService userManager;
 
-    public DeleteUserCommand(PropertiesContainer propertiesContainer, UserService userManager) {
-        super(propertiesContainer);
+    public DeleteUserCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
+        super(propertiesContainer, managerService);
         this.userManager = userManager;
     }
 

@@ -12,13 +12,11 @@ import java.util.List;
 
 @Component
 public class AddManagerCommand extends AbstractCommand {
-    private final ManagerService managerService;
-
 
     public AddManagerCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
-        super(propertiesContainer);
-        this.managerService = managerService;
+        super(propertiesContainer, managerService);
     }
+
 
     @Override
     public SendMessage handle(Update update) {
@@ -31,6 +29,7 @@ public class AddManagerCommand extends AbstractCommand {
         boolean wasAdded = managerService.addManager(ManagerModel.builder()
                 .telegramId(managerId)
                 .telegramName(managerUsername)
+                .chatId(update.getMessage().getChatId())
                 .build());
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();

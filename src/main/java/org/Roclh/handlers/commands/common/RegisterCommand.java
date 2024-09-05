@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.common;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.data.model.user.UserService;
 import org.Roclh.data.model.user.UserModel;
@@ -14,8 +15,8 @@ import java.util.List;
 public class RegisterCommand extends AbstractCommand {
     private final UserService userManager;
 
-    public RegisterCommand(PropertiesContainer propertiesContainer, UserService userManager) {
-        super(propertiesContainer);
+    public RegisterCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
+        super(propertiesContainer, managerService);
         this.userManager = userManager;
     }
 
@@ -25,6 +26,7 @@ public class RegisterCommand extends AbstractCommand {
         boolean isSaved = userManager.saveUser(UserModel.builder()
                 .telegramId(update.getMessage().getFrom().getId().toString())
                 .telegramName(update.getMessage().getFrom().getUserName())
+                .chatId(update.getMessage().getChatId())
                 .usedPort(null)
                 .isAdded(false)
                 .build());
@@ -32,7 +34,7 @@ public class RegisterCommand extends AbstractCommand {
         sendMessage.setChatId(String.valueOf(chatId));
         if (isSaved) {
             sendMessage.setText("Successfully registered!");
-        }else {
+        } else {
             sendMessage.setText("Already registered!");
         }
         return sendMessage;

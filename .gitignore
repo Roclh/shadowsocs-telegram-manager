@@ -41,4 +41,5 @@ build/
 /src/main/docker/*.jar
 *.sh
 /src/main/resources/secret.properties
+/src/test/resources/secret.properties
 /external

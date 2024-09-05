@@ -1,12 +1,14 @@
 package org.Roclh.data.model.user;
 
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.repositories.UserRepository;
 import org.Roclh.utils.ScriptRunner;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +21,8 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    @PostConstruct
+    @EventListener(ContextRefreshedEvent.class)
+    @Order(10)
     public void init() {
         getAllUsers().stream()
                 .filter(userModel -> userModel.isAdded() && userModel.getUsedPort() != null && userModel.getPassword() != null)
@@ -35,6 +38,14 @@ public class UserService {
             log.error("Failed to add user", e);
             return false;
         }
+    }
+
+    public boolean updateUser(@NonNull String telegramId, @NonNull UserModel userModel) {
+        return userRepository.updateByTelegramId(userModel.getId(), userModel.getTelegramName(), userModel.getUsedPort(), userModel.getPassword(), userModel.isAdded(), telegramId) > 0;
+    }
+
+    public boolean updateUser(@NonNull String telegramId, @NonNull String port, @NonNull String password, boolean isAdded){
+        return userRepository.updateUsedPortAndPasswordAndIsAddedByTelegramId(port, password, isAdded, telegramId) > 0;
     }
 
     public Optional<UserModel> getUser(@NonNull String userId) {
@@ -72,6 +83,10 @@ public class UserService {
             ).orElse(false);
         }
         return isChanged && wasExecuted;
+    }
+
+    public boolean executeShScriptChangePassword(@NonNull UserModel userModel) {
+        return executeShScriptDisableUser(userModel) && executeShScriptAddUser(userModel);
     }
 
     public boolean executeShScriptAddUser(@NonNull UserModel userModel) {

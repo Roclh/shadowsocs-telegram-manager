@@ -36,5 +36,7 @@ public class ManagerModel {
     private String telegramId;
     @Nullable
     private String telegramName;
+    @Nullable
+    private Long chatId;
 
 }

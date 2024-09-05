@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Service;
@@ -10,8 +11,9 @@ import java.util.List;
 
 @Service
 public class LimitFlowCommand extends AbstractCommand {
-    public LimitFlowCommand(PropertiesContainer propertiesContainer) {
-        super(propertiesContainer);
+
+    public LimitFlowCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
+        super(propertiesContainer, managerService);
     }
 
     @Override

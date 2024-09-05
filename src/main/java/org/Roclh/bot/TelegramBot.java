@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.CommandHandler;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -15,6 +16,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
+@Scope()
 @RequiredArgsConstructor
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {

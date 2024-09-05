@@ -6,6 +6,12 @@ services:
     build:
       context: .
     container_name: app
+    restart: unless-stopped
+    healthcheck:
+      test: "curl --fail localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 3s
+      retries: 3
     depends_on:
       - db
     environment:
@@ -20,13 +26,24 @@ services:
 
   db:
     image: postgres
-    container_name: db
+    container_name: postgres
+    restart: unless-stopped
     environment:
+      - PGUSER=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=qwertyui
       - POSTGRES_DB=pepegavpnmanager
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 6
     volumes:
       - data:/var/lib/postgresql/data
+
+networks:
+  db:
+    driver: bridge
 
 volumes:
   data: {}

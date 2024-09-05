@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.data.model.user.UserModel;
 import org.Roclh.data.model.user.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
@@ -14,8 +15,8 @@ import java.util.List;
 public class AddUserCommand extends AbstractCommand {
     private final UserService userManager;
 
-    public AddUserCommand(PropertiesContainer propertiesContainer, UserService userManager) {
-        super(propertiesContainer);
+    public AddUserCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
+        super(propertiesContainer, managerService);
         this.userManager = userManager;
     }
 
@@ -37,7 +38,7 @@ public class AddUserCommand extends AbstractCommand {
         UserModel userModel = userManager.getUser(telegramId)
                 .orElse(null);
         if (userModel == null) {
-            sendMessage.setText("User with id " + telegramId + "was not added! Either it exists or failed to add");
+            sendMessage.setText("User with id " + telegramId + " was not added! Either it exists or failed to add");
             return sendMessage;
         }
         userModel.setUsedPort(port);

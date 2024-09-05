@@ -1,5 +1,7 @@
 package org.Roclh.handlers.commands.manager;
 
+import org.Roclh.data.model.manager.ManagerModel;
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
@@ -7,14 +9,13 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ListManagerCommand extends AbstractCommand {
-    private final PropertiesContainer propertiesContainer;
 
-    public ListManagerCommand(PropertiesContainer propertiesContainer, PropertiesContainer propertiesContainer1) {
-        super(propertiesContainer);
-        this.propertiesContainer = propertiesContainer1;
+    public ListManagerCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
+        super(propertiesContainer, managerService);
     }
 
     @Override
@@ -22,9 +23,11 @@ public class ListManagerCommand extends AbstractCommand {
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        List<String> managers = propertiesContainer.getProperties(PropertiesContainer.MANAGERS_KEY);
+        List<ManagerModel> managers = managerService.getManagers();
         sendMessage.setText(managers.size() + " managers that exists:\n" +
-                String.join("\n", managers));
+                managers.stream().map(
+                        managerModel -> managerModel.getTelegramId() + ":" + managerModel.getTelegramName()
+                ).collect(Collectors.joining("\n")));
         return sendMessage;
     }
 

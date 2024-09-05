@@ -13,8 +13,11 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserModel, Long> {
     Optional<UserModel> findByTelegramId(String telegramId);
 
+    @Transactional
+    @Modifying
     long deleteByTelegramId(String telegramId);
-
+    @Transactional
+    @Modifying
     long deleteByUsedPort(String usedPort);
 
     @Transactional
@@ -26,4 +29,16 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
     @Modifying
     @Query("update UserModel u set u.isAdded = ?1 where u.telegramId = ?2")
     int updateIsAddedByTelegramId(boolean isAdded, String telegramId);
+
+    @Transactional
+    @Modifying
+    @Query("""
+            update UserModel u set u.id = ?1, u.telegramName = ?2, u.usedPort = ?3, u.password = ?4, u.isAdded = ?5
+            where u.telegramId = ?6""")
+    int updateByTelegramId(Long id, String telegramName, String usedPort, String password, boolean isAdded, String telegramId);
+
+    @Transactional
+    @Modifying
+    @Query("update UserModel u set u.usedPort = ?1, u.password = ?2, u.isAdded = ?3 where u.telegramId = ?4")
+    int updateUsedPortAndPasswordAndIsAddedByTelegramId(String usedPort, String password, boolean isAdded, String telegramId);
 }

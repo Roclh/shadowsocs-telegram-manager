@@ -10,6 +10,7 @@ import org.Roclh.handlers.commands.manager.DebugCommand;
 import org.Roclh.handlers.commands.manager.DeleteManagerCommand;
 import org.Roclh.handlers.commands.user.ChangeUserEnabledCommand;
 import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
+import org.Roclh.handlers.commands.user.DeleteUserCommand;
 import org.Roclh.handlers.commands.user.ListCommand;
 import org.Roclh.handlers.commands.manager.ListManagerCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
@@ -44,7 +45,8 @@ public class CommandHandler {
                           EchoCommand echoCommand,
                           AddUserCommand addUserCommand,
                           ChangeUserPasswordCommand changeUserPasswordCommand,
-                          ChangeUserEnabledCommand changeUserEnabledCommand) {
+                          ChangeUserEnabledCommand changeUserEnabledCommand,
+                          DeleteUserCommand deleteUserCommand) {
         commands.put(debugCommand.getCommandNames(), debugCommand);
         commands.put(debugCommand.getCommandNames(), debugCommand);
         commands.put(startCommand.getCommandNames(), startCommand);
@@ -58,6 +60,7 @@ public class CommandHandler {
         commands.put(addUserCommand.getCommandNames(), addUserCommand);
         commands.put(changeUserPasswordCommand.getCommandNames(), changeUserPasswordCommand);
         commands.put(changeUserEnabledCommand.getCommandNames(), changeUserEnabledCommand);
+        commands.put(deleteUserCommand.getCommandNames(), deleteUserCommand);
     }
 
     public SendMessage handleCommands(Update update) {

@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import org.Roclh.data.model.manager.ManagerService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.data.model.user.UserService;
 import org.Roclh.data.model.user.UserModel;
@@ -15,10 +16,11 @@ import java.util.stream.Collectors;
 public class ListCommand extends AbstractCommand {
     private final UserService userManager;
 
-    public ListCommand(PropertiesContainer propertiesContainer, UserService userManager) {
-        super(propertiesContainer);
+    public ListCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
+        super(propertiesContainer, managerService);
         this.userManager = userManager;
     }
+
 
     @Override
     public SendMessage handle(Update update) {
