@@ -43,7 +43,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand {
             return sendMessage;
         }
 
-        String password = PasswordGenerator.md5(userModel.getTelegramName() + ":" + userModel.getTelegramId()).map(pwd -> new String(ArrayUtils.toPrimitive(pwd), Charset.forName("windows-1251")))
+        String password = PasswordGenerator.md5(userModel.getTelegramName() + ":" + userModel.getTelegramId())
                 .orElseThrow();
         boolean updateUser = userManager.updateUser(telegramId, port, password, true);
         if (!updateUser) {
