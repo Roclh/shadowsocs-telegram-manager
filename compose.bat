@@ -2,7 +2,7 @@
 
 chcp 65001
 
-call mvn clean package
+call mvn clean package -DskipTests
 
 echo Deleting previous jar
 del "%CD%\src\main\docker\*.jar"
@@ -17,7 +17,7 @@ echo Decomposing existing docker container
 docker-compose down
 
 echo Clearing old image of pepega-vpn-manager
-docker rmi pepega-vpn-manager:latest
+docker rmi -f pepega-vpn-manager:latest
 
 echo Composing container with a new image
 docker-compose up
