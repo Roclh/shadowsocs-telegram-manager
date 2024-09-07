@@ -29,7 +29,7 @@ public class ChangeUserEnabledCommand extends AbstractCommand {
     public SendMessage handle(Update update) {
         String[] words = update.getMessage().getText().split(" ");
         if (words.length < 2) {
-            return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build();
+            return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build(); // проверить это
         }
         String cmd = words[0];
         String userId = words[1];
@@ -38,7 +38,7 @@ public class ChangeUserEnabledCommand extends AbstractCommand {
         sendMessage.setChatId(String.valueOf(chatId));
 
         boolean isEnabled = enableCommands.contains(cmd);
-        if (userService.changeUserEnabled(userId, isEnabled)) {
+        if (userService.changeUserEnabled(userId, isEnabled)) { // а еще это
             sendMessage.setText("User was " + (isEnabled ? "enabled" : "disabled"));
         } else {
             sendMessage.setText("User was not " + (isEnabled ? "enabled" : "disabled"));
