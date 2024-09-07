@@ -32,14 +32,15 @@ public class ChangeUserPasswordCommand extends AbstractCommand {
         String telegramId = words[1];
         String password = words[2];
 
+
         boolean isChanged = userManager.changePassword(telegramId, password);
         if (isChanged) {
-            if(userManager.getUser(telegramId).map(userManager::executeShScriptChangePassword).orElse(false)){
+            if (userManager.getUser(telegramId).map(userManager::executeShScriptChangePassword).orElse(false)) {
                 sendMessage.setText("Successfully changed password for user with id " + telegramId);
-            }else {
-                sendMessage.setText("Failed to change password for user with id " + telegramId);
+                return sendMessage;
             }
         }
+        sendMessage.setText("Failed to change password for user with id " + telegramId);
         return sendMessage;
     }
 
