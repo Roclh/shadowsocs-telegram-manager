@@ -27,11 +27,11 @@ public class DeleteManagerCommand extends AbstractCommand<SendMessage> {
         if (words.length < 2) {
             return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build();
         }
-        String managerId = words[1];
+        Long managerId = Long.valueOf(words[1]);
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        if (!telegramBotProperties.getDefaultManagerId().equals(managerId) && telegramUserService.setRole(Long.parseLong(managerId), Role.USER)) {
+        if (!telegramBotProperties.getDefaultManagerId().equals(managerId) && telegramUserService.setRole(managerId, Role.USER)) {
             sendMessage.setText("Manager with id " + managerId + " was deleted successfully!");
         } else {
             sendMessage.setText("Manager with id " + managerId + " was not deleted. Managers that exists:\n" +

@@ -1,8 +1,7 @@
-package org.Roclh.handlers.commands.user;
+package org.Roclh.handlers.commands.telegramUser;
 
-import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
-import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,31 +11,35 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class ListCommand extends AbstractCommand<SendMessage> {
-    private final UserService userService;
-    public ListCommand(TelegramUserService telegramUserService, UserService userService) {
-        super(telegramUserService);
-        this.userService = userService;
-    }
+public class ListTelegramUserCommand extends AbstractCommand<SendMessage> {
 
+    public ListTelegramUserCommand(TelegramUserService telegramUserService) {
+        super(telegramUserService);
+    }
     @Override
     public SendMessage handle(Update update) {
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        List<UserModel> allUsers = userService.getAllUsers();
-        sendMessage.setText(allUsers.size() + " added users:\n" +
-                allUsers.stream().map(UserModel::toString)
+        List<TelegramUserModel> allUsers = telegramUserService.getUsers();
+        sendMessage.setText(allUsers.size() + " telegram users:\n" +
+                allUsers.stream().map(TelegramUserModel::toString)
                         .collect(Collectors.joining("\n")));
         return sendMessage;
     }
 
     @Override
-    public String getHelp() {
-        return getCommandNames().get(0) + "\n -- show list of added users";
+    public String inlineName() {
+        return "Список пользователей";
     }
+
+    @Override
+    public String getHelp() {
+        return getCommandNames().get(0) + "\n -- show full list of users";
+    }
+
     @Override
     public List<String> getCommandNames() {
-        return List.of("l", "list", "listusers");
+        return List.of("listtg", "ltg", inlineName().replace(' ', '_').toLowerCase());
     }
 }
