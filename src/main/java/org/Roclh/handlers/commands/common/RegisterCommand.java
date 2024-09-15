@@ -1,10 +1,8 @@
 package org.Roclh.handlers.commands.common;
 
-import org.Roclh.data.model.manager.ManagerService;
-import org.Roclh.data.model.user.UserModel;
-import org.Roclh.data.model.user.UserService;
+import org.Roclh.data.Role;
+import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,23 +11,19 @@ import java.util.List;
 
 @Component
 public class RegisterCommand extends AbstractCommand<SendMessage> {
-    private final UserService userManager;
 
-    public RegisterCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
-        super(propertiesContainer, managerService);
-        this.userManager = userManager;
+    public RegisterCommand(TelegramUserService telegramUserService) {
+        super(telegramUserService);
     }
 
     @Override
     public SendMessage handle(Update update) {
         long chatId = update.getMessage().getChatId();
-        boolean isSaved = userManager.saveUser(UserModel.builder()
-                .telegramId(update.getMessage().getFrom().getId().toString())
-                .telegramName(update.getMessage().getFrom().getUserName())
-                .chatId(update.getMessage().getChatId())
-                .usedPort(null)
-                .isAdded(false)
-                .build());
+        boolean isSaved = telegramUserService.saveUser(telegramUserService.getUser(update.getMessage().getFrom().getId())
+                .map(user->{
+                    user.setRole(Role.USER);
+                    return user;
+                }).orElse(null));
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         if (isSaved) {
@@ -46,7 +40,7 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
     }
 
     @Override
-    public boolean isManager(String userId) {
+    public boolean isManager(Long userId) {
         return true;
     }
 

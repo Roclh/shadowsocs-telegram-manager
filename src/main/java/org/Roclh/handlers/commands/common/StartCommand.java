@@ -1,11 +1,12 @@
 package org.Roclh.handlers.commands.common;
 
-import org.Roclh.data.model.manager.ManagerService;
+import org.Roclh.data.Role;
+import org.Roclh.data.entities.TelegramUserModel;
+import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.Command;
 import org.Roclh.utils.Consts;
-import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -20,23 +21,29 @@ import java.util.Objects;
 @Component
 public class StartCommand extends AbstractCommand<SendMessage> {
 
-    public StartCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
-        super(propertiesContainer, managerService);
+    public StartCommand(TelegramUserService telegramUserService) {
+        super(telegramUserService);
     }
 
     @Override
     public SendMessage handle(Update update) {
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
+        telegramUserService.saveUser(TelegramUserModel.builder()
+                .telegramId(update.getMessage().getFrom().getId())
+                .telegramName(update.getMessage().getFrom().getUserName())
+                .chatId(chatId)
+                .role(Role.GUEST)
+                .build());
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(Consts.HELLO_TELEGRAM_TEXT + "\n\nAvailable commands:\n" +
-                CommandHandler.getCommandNames(update.getMessage().getFrom().getId().toString()));
+                CommandHandler.getCommandNames(update.getMessage().getFrom().getId()));
         sendMessage.setReplyMarkup(getInlineKeyboardButtons(update));
         return sendMessage;
     }
 
     @Override
-    public boolean isManager(String userId) {
+    public boolean isManager(Long userId) {
         return true;
     }
 

@@ -1,9 +1,9 @@
 package org.Roclh.handlers.commands.manager;
 
-import org.Roclh.data.model.manager.ManagerModel;
-import org.Roclh.data.model.manager.ManagerService;
+import org.Roclh.data.Role;
+import org.Roclh.data.entities.TelegramUserModel;
+import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 @Component
 public class ListManagerCommand extends AbstractCommand<SendMessage> {
 
-    public ListManagerCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
-        super(propertiesContainer, managerService);
+    public ListManagerCommand(TelegramUserService telegramUserService) {
+        super(telegramUserService);
     }
 
     @Override
@@ -23,7 +23,7 @@ public class ListManagerCommand extends AbstractCommand<SendMessage> {
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        List<ManagerModel> managers = managerService.getManagers();
+        List<TelegramUserModel> managers = telegramUserService.getUsers(user -> Role.MANAGER.equals(user.getRole()));
         sendMessage.setText(managers.size() + " managers that exists:\n" +
                 managers.stream().map(
                         managerModel -> managerModel.getTelegramId() + ":" + managerModel.getTelegramName()

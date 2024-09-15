@@ -1,10 +1,9 @@
 package org.Roclh.handlers.commands.user;
 
-import org.Roclh.data.model.manager.ManagerService;
-import org.Roclh.data.model.user.UserModel;
-import org.Roclh.data.model.user.UserService;
+import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.services.TelegramUserService;
+import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -15,8 +14,8 @@ import java.util.List;
 public class AddUserCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
 
-    public AddUserCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
-        super(propertiesContainer, managerService);
+    public AddUserCommand(TelegramUserService telegramUserService, UserService userManager) {
+        super(telegramUserService);
         this.userManager = userManager;
     }
 
@@ -35,13 +34,13 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
         String port = words[2];
         String password = words[3];
 
-        UserModel userModel = userManager.getUser(telegramId)
+        UserModel userModel = userManager.getUser(Long.parseLong(telegramId))
                 .orElse(null);
         if (userModel == null) {
             sendMessage.setText("User with id " + telegramId + " was not added! Either it exists or failed to add");
             return sendMessage;
         }
-        userModel.setUsedPort(port);
+        userModel.setUsedPort(Long.parseLong(port));
         userModel.setPassword(password);
         userModel.setAdded(true);
 

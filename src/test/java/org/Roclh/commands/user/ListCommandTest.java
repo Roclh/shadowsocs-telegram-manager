@@ -1,6 +1,6 @@
 package org.Roclh.commands.user;
 
-import org.Roclh.data.model.user.UserModel;
+import org.Roclh.data.entities.UserModel;
 import org.Roclh.handlers.commands.user.ListCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

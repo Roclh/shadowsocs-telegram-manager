@@ -1,11 +1,11 @@
 package org.Roclh.handlers.commands.user;
 
-import org.Roclh.data.model.manager.ManagerService;
-import org.Roclh.data.model.user.UserModel;
-import org.Roclh.data.model.user.UserService;
+import org.Roclh.data.entities.TelegramUserModel;
+import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.services.TelegramUserService;
+import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PasswordGenerator;
-import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -16,8 +16,8 @@ import java.util.List;
 public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
 
-    public AddUserWithoutPasswordCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
-        super(propertiesContainer, managerService);
+    public AddUserWithoutPasswordCommand(TelegramUserService telegramUserService, UserService userManager) {
+        super(telegramUserService);
         this.userManager = userManager;
     }
 
@@ -28,33 +28,35 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
             return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build();
         }
 
-        String telegramId = words[1];
-        String port = words[2];
+        Long telegramId = Long.parseLong(words[1]);
+        Long port = Long.parseLong(words[2]);
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 
-        UserModel userModel = userManager.getUser(telegramId)
-                .orElse(null);
-        if (userModel == null || userModel.isAdded()) {
-            sendMessage.setText("User with id " + telegramId + "was not added! Either user is not registered or already added");
+        if(!telegramUserService.exists(telegramId)){
+            sendMessage.setText("User with id " + telegramId + " was not added! User is not registered!");
             return sendMessage;
         }
-
-        String password = PasswordGenerator.md5(userModel.getTelegramName() + ":" + userModel.getTelegramId())
+        TelegramUserModel telegramUserModel = telegramUserService.getUser(telegramId).orElseThrow(() -> new RuntimeException("Illegal state"));
+        String password = PasswordGenerator.md5(telegramUserModel.getTelegramName() + ":" + telegramUserModel.getTelegramId())
                 .orElseThrow();
-        boolean updateUser = userManager.updateUser(telegramId, port, password, true);
-        if (!updateUser) {
+        UserModel userModel = UserModel.builder()
+                .userModel(telegramUserModel)
+                .password(password)
+                .usedPort(port)
+                .isAdded(true)
+                .build();
+
+        if (!userManager.executeShScriptAddUser(userModel)) {
+            sendMessage.setText("User with id " + telegramId + " was not added! Failed to execute script");
+            return sendMessage;
+        }
+        if (!userManager.saveUser(userModel)) {
             sendMessage.setText("User with id " + telegramId + "was not added! Failed to update database");
             return sendMessage;
         }
-
-        boolean isScriptExecuted = userManager.executeShScriptAddUser(userModel);
-        if (isScriptExecuted) {
-            sendMessage.setText("User with id " + telegramId + " was added successfully!");
-            return sendMessage;
-        }
-        sendMessage.setText("User with id " + telegramId + " was not added! Failed to execute script");
+        sendMessage.setText("User with id " + telegramId + " added successfully!");
         return sendMessage;
     }
 

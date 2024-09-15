@@ -15,7 +15,7 @@ public interface Command<T extends BotApiMethod<? extends Serializable>> {
 
     List<String> getCommandNames();
 
-    boolean isManager(String userId);
+    boolean isManager(Long userId);
 
     default String inlineName() {
         return null;

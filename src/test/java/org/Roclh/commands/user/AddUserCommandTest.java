@@ -1,6 +1,8 @@
 package org.Roclh.commands.user;
 
-import org.Roclh.data.model.user.UserModel;
+import org.Roclh.data.Role;
+import org.Roclh.data.entities.TelegramUserModel;
+import org.Roclh.data.entities.UserModel;
 import org.Roclh.handlers.commands.user.AddUserCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,11 +39,17 @@ public class AddUserCommandTest extends CommonUserCommandTest {
     public void whenAddCorrectUser_thenUserIsAdded() {
         UserModel expected = UserModel.builder()
                 .isAdded(true)
-                .chatId(null)
+                .userModel(
+                        TelegramUserModel.builder()
+                                .role(Role.GUEST)
+                                .id(3L)
+                                .telegramId(3L)
+                                .chatId(null)
+                                .telegramName("TestUser3")
+                                .build()
+                )
                 .id(3L)
-                .telegramId("3")
-                .telegramName("TestUser3")
-                .usedPort("10000")
+                .usedPort(10000L)
                 .password("qwertyui")
                 .build();
         Mockito.when(updateMessage.getText()).thenReturn("add 3 10000 qwertyui");
