@@ -27,7 +27,9 @@ public class TelegramUserService {
             telegramUserRepository.save(getUser(userModel.getTelegramId())
                     .map(user -> {
                         user.setTelegramId(userModel.getTelegramId());
-                        user.setRole(userModel.getRole());
+                        if(userModel.getRole().prior > user.getRole().prior){
+                            user.setRole(userModel.getRole());
+                        }
                         if (userModel.getTelegramName() != null) {
                             user.setTelegramName(userModel.getTelegramName());
                         }
