@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class DeleteManagerCommand extends AbstractCommand {
+public class DeleteManagerCommand extends AbstractCommand<SendMessage> {
     private final TelegramBotProperties telegramBotProperties;
 
     public DeleteManagerCommand(PropertiesContainer propertiesContainer, ManagerService managerService, TelegramBotProperties telegramBotProperties) {

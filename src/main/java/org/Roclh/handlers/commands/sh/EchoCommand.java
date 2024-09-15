@@ -15,7 +15,7 @@ import static org.Roclh.utils.ScriptRunner.isShScriptExists;
 
 @Component
 @Slf4j
-public class EchoCommand extends AbstractCommand {
+public class EchoCommand extends AbstractCommand<SendMessage> {
     private final String scriptPath = "check_sh_script.sh";
     private final static String scriptContent = """
                 #!/bin/bash

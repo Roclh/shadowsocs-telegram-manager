@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 
 @Component
-public class DebugCommand extends AbstractCommand {
+public class DebugCommand extends AbstractCommand<SendMessage> {
 
 
     public DebugCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {

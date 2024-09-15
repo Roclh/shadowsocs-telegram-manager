@@ -6,16 +6,14 @@ import org.Roclh.data.model.user.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PasswordGenerator;
 import org.Roclh.utils.PropertiesContainer;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 @Component
-public class AddUserWithoutPasswordCommand extends AbstractCommand {
+public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
 
     public AddUserWithoutPasswordCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {

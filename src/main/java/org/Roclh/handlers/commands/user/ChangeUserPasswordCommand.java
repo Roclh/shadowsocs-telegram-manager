@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 
 @Component
-public class ChangeUserPasswordCommand extends AbstractCommand {
+public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
 
     public ChangeUserPasswordCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {

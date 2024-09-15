@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Setter
-public class TelegramBotProvider {
+public class TelegramBotStorage {
     private TelegramBot telegramBot;
 
     public TelegramBot getTelegramBot(){

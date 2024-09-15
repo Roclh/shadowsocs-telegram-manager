@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 
 @Component
-public class AddManagerCommand extends AbstractCommand {
+public class AddManagerCommand extends AbstractCommand<SendMessage> {
 
     public AddManagerCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
         super(propertiesContainer, managerService);
@@ -26,12 +26,12 @@ public class AddManagerCommand extends AbstractCommand {
         }
         String managerId = words[1];
         String managerUsername = words[2];
+        long chatId = update.getMessage().getChatId();
         boolean wasAdded = managerService.addManager(ManagerModel.builder()
                 .telegramId(managerId)
                 .telegramName(managerUsername)
-                .chatId(update.getMessage().getChatId())
+                .chatId(chatId)
                 .build());
-        long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         if (wasAdded) {

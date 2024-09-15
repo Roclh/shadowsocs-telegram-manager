@@ -15,5 +15,8 @@ public class TelegramBotProperties {
     @NotBlank
     private String token;
     @NotBlank
+    private String paymentToken;
+    @NotBlank
     private String defaultManagerId;
+    private int maxThreads = 1;
 }

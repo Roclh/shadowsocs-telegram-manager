@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-public class StartCommand extends AbstractCommand {
+public class StartCommand extends AbstractCommand<SendMessage> {
 
     public StartCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
         super(propertiesContainer, managerService);

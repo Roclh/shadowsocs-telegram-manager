@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class ChangeUserEnabledCommand extends AbstractCommand {
+public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> {
     private final List<String> enableCommands = List.of("enable");
     private final List<String> disableCommands = List.of("disable", "dis");
 

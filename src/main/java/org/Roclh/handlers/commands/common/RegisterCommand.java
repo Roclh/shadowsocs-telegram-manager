@@ -1,9 +1,9 @@
 package org.Roclh.handlers.commands.common;
 
 import org.Roclh.data.model.manager.ManagerService;
-import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.data.model.user.UserService;
 import org.Roclh.data.model.user.UserModel;
+import org.Roclh.data.model.user.UserService;
+import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 
 @Component
-public class RegisterCommand extends AbstractCommand {
+public class RegisterCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
 
     public RegisterCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {

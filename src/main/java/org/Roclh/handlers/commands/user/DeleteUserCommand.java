@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
-public class DeleteUserCommand extends AbstractCommand {
+public class DeleteUserCommand extends AbstractCommand<SendMessage> {
     public final UserService userManager;
 
     public DeleteUserCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {

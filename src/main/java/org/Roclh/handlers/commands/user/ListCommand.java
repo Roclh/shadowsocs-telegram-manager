@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class ListCommand extends AbstractCommand {
+public class ListCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
 
     public ListCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {

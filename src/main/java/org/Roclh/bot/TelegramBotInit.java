@@ -17,7 +17,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class TelegramBotInit {
     private final TelegramBot telegramBot;
     private final TelegramBotProperties telegramBotProperties;
-    private final TelegramBotProvider telegramBotProvider;
+    private final TelegramBotStorage telegramBotStorage;
     private final PropertiesContainer propertiesContainer;
 
     @Async
@@ -26,8 +26,9 @@ public class TelegramBotInit {
         log.info("Starting initialization of telegram bot");
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
+            telegramBot.getOptions().setMaxThreads(telegramBotProperties.getMaxThreads());
             telegramBotsApi.registerBot(telegramBot);
-            telegramBotProvider.setTelegramBot(telegramBot);
+            telegramBotStorage.setTelegramBot(telegramBot);
             propertiesContainer.addProperty(PropertiesContainer.MANAGERS_KEY, telegramBotProperties.getDefaultManagerId());
             propertiesContainer.addProperty(PropertiesContainer.BOT_TOKEN_KEY, telegramBotProperties.getToken());
             log.info("Registered bot successfully");

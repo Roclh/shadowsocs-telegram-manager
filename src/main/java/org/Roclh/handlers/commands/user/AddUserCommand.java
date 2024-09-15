@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 
 @Component
-public class AddUserCommand extends AbstractCommand {
+public class AddUserCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
 
     public AddUserCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {

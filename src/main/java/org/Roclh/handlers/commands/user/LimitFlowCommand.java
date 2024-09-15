@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 
 @Service
-public class LimitFlowCommand extends AbstractCommand {
+public class LimitFlowCommand extends AbstractCommand<SendMessage> {
 
     public LimitFlowCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
         super(propertiesContainer, managerService);

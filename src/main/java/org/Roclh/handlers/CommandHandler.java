@@ -18,9 +18,11 @@ import org.Roclh.handlers.commands.common.StartCommand;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CommandHandler {
 
-    private static final Map<List<String>, Command> commands = new HashMap<>();
+    private static final Map<List<String>, Command<? extends BotApiMethod<?>>> commands = new HashMap<>();
 
     public CommandHandler(DebugCommand debugCommand,
                           StartCommand startCommand,
@@ -63,7 +65,7 @@ public class CommandHandler {
         commands.put(deleteUserCommand.getCommandNames(), deleteUserCommand);
     }
 
-    public SendMessage handleCommands(Update update) {
+    public BotApiMethod<? extends Serializable> handleCommands(Update update) {
         String messageText = update.getMessage().getText();
         String command = messageText.split(" ")[0];
         long chatId = update.getMessage().getChatId();
@@ -73,7 +75,7 @@ public class CommandHandler {
             command = command.substring(1);
         }
         String finalCommand = command;
-        Command commandHandler = commands.keySet().stream()
+        Command<? extends BotApiMethod<?>> commandHandler = commands.keySet().stream()
                 .filter(keys -> keys.contains(finalCommand.toLowerCase()) || keys.contains(messageText.toLowerCase().replace(' ', '_')))
                 .findFirst()
                 .map(commands::get).orElse(null);
