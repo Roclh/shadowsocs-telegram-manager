@@ -1,9 +1,10 @@
 package org.Roclh.handlers.commands.manager;
 
 import org.Roclh.bot.TelegramBotProperties;
-import org.Roclh.data.model.manager.ManagerService;
+import org.Roclh.data.Role;
+import org.Roclh.data.entities.TelegramUserModel;
+import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -15,8 +16,8 @@ import java.util.stream.Collectors;
 public class DeleteManagerCommand extends AbstractCommand<SendMessage> {
     private final TelegramBotProperties telegramBotProperties;
 
-    public DeleteManagerCommand(PropertiesContainer propertiesContainer, ManagerService managerService, TelegramBotProperties telegramBotProperties) {
-        super(propertiesContainer, managerService);
+    public DeleteManagerCommand(TelegramUserService telegramUserService, TelegramBotProperties telegramBotProperties) {
+        super(telegramUserService);
         this.telegramBotProperties = telegramBotProperties;
     }
 
@@ -30,12 +31,12 @@ public class DeleteManagerCommand extends AbstractCommand<SendMessage> {
         long chatId = update.getMessage().getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        if (!telegramBotProperties.getDefaultManagerId().equals(managerId) && managerService.delManager(managerId)) {
+        if (!telegramBotProperties.getDefaultManagerId().equals(managerId) && telegramUserService.setRole(Long.parseLong(managerId), Role.USER)) {
             sendMessage.setText("Manager with id " + managerId + " was deleted successfully!");
         } else {
             sendMessage.setText("Manager with id " + managerId + " was not deleted. Managers that exists:\n" +
-                    propertiesContainer.getProperties(PropertiesContainer.MANAGERS_KEY)
-                            .stream().filter(id -> !id.equals(telegramBotProperties.getDefaultManagerId())).collect(Collectors.joining("\n")));
+                    telegramUserService.getUsers(user->user.getRole().equals(Role.MANAGER)).stream()
+                            .map(TelegramUserModel::toString).collect(Collectors.joining("\n")));
         }
         return sendMessage;
     }

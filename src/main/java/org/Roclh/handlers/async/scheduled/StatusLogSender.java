@@ -2,17 +2,8 @@ package org.Roclh.handlers.async.scheduled;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.bot.TelegramBot;
-import org.Roclh.data.model.manager.ManagerService;
-import org.Roclh.data.model.user.UserModel;
-import org.Roclh.data.model.user.UserService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j

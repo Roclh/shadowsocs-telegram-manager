@@ -1,6 +1,6 @@
 package org.Roclh.commands.user;
 
-import org.Roclh.data.model.user.UserModel;
+import org.Roclh.data.entities.UserModel;
 import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class ChangeUserPasswordCommandTest extends CommonUserCommandTest {
     public void init() {
         super.init();
         Mockito.when(userService.saveUser(any(UserModel.class))).thenReturn(true);
-        Mockito.when(userService.changeUserEnabled(any(String.class), any(Boolean.class))).thenReturn(true);
+        Mockito.when(userService.changeUserEnabled(any(Long.class), any(Boolean.class))).thenReturn(true);
         Mockito.when(userService.executeShScriptChangePassword(any(UserModel.class))).thenReturn(true);
     }
 

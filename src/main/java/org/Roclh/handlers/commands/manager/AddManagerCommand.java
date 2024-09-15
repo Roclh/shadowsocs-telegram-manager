@@ -1,9 +1,9 @@
 package org.Roclh.handlers.commands.manager;
 
-import org.Roclh.data.model.manager.ManagerModel;
-import org.Roclh.data.model.manager.ManagerService;
+import org.Roclh.data.Role;
+import org.Roclh.data.entities.TelegramUserModel;
+import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,8 +13,8 @@ import java.util.List;
 @Component
 public class AddManagerCommand extends AbstractCommand<SendMessage> {
 
-    public AddManagerCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
-        super(propertiesContainer, managerService);
+    public AddManagerCommand(TelegramUserService telegramUserService) {
+        super(telegramUserService);
     }
 
 
@@ -27,11 +27,17 @@ public class AddManagerCommand extends AbstractCommand<SendMessage> {
         String managerId = words[1];
         String managerUsername = words[2];
         long chatId = update.getMessage().getChatId();
-        boolean wasAdded = managerService.addManager(ManagerModel.builder()
-                .telegramId(managerId)
-                .telegramName(managerUsername)
-                .chatId(chatId)
-                .build());
+        boolean wasAdded = telegramUserService.saveUser(telegramUserService.getUser(Long.parseLong(managerId))
+                .map(user -> {
+                    user.setRole(Role.MANAGER);
+                    return user;
+                })
+                .orElse(TelegramUserModel.builder()
+                        .telegramId(Long.parseLong(managerId))
+                        .telegramName(managerUsername)
+                        .chatId(chatId)
+                        .role(Role.MANAGER)
+                        .build()));
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         if (wasAdded) {

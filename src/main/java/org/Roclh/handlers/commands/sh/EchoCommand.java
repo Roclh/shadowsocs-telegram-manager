@@ -1,9 +1,8 @@
 package org.Roclh.handlers.commands.sh;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.model.manager.ManagerService;
+import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.utils.PropertiesContainer;
 import org.Roclh.utils.ScriptRunner;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,8 +22,8 @@ public class EchoCommand extends AbstractCommand<SendMessage> {
                                 
                 """;
 
-    public EchoCommand(PropertiesContainer propertiesContainer, ManagerService managerService) {
-        super(propertiesContainer, managerService);
+    public EchoCommand(TelegramUserService telegramUserService) {
+        super(telegramUserService);
     }
 
 

@@ -1,9 +1,8 @@
 package org.Roclh.handlers.commands.user;
 
-import org.Roclh.data.model.manager.ManagerService;
-import org.Roclh.data.model.user.UserService;
+import org.Roclh.data.services.TelegramUserService;
+import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.utils.PropertiesContainer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,8 +13,8 @@ import java.util.List;
 public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
 
-    public ChangeUserPasswordCommand(PropertiesContainer propertiesContainer, ManagerService managerService, UserService userManager) {
-        super(propertiesContainer, managerService);
+    public ChangeUserPasswordCommand(TelegramUserService telegramUserService, UserService userManager) {
+        super(telegramUserService);
         this.userManager = userManager;
     }
 
@@ -29,7 +28,7 @@ public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 
-        String telegramId = words[1];
+        Long telegramId = Long.valueOf(words[1]);
         String password = words[2];
 
 

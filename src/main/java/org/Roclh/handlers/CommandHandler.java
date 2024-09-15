@@ -6,11 +6,10 @@ import org.Roclh.handlers.commands.sh.EchoCommand;
 import org.Roclh.handlers.commands.user.AddUserCommand;
 import org.Roclh.handlers.commands.user.AddUserWithoutPasswordCommand;
 import org.Roclh.handlers.commands.Command;
-import org.Roclh.handlers.commands.manager.DebugCommand;
 import org.Roclh.handlers.commands.manager.DeleteManagerCommand;
 import org.Roclh.handlers.commands.user.ChangeUserEnabledCommand;
 import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
-import org.Roclh.handlers.commands.user.DeleteUserCommand;
+import org.Roclh.handlers.commands.user.DeleteTelegramUserCommand;
 import org.Roclh.handlers.commands.user.ListCommand;
 import org.Roclh.handlers.commands.manager.ListManagerCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
@@ -36,8 +35,7 @@ public class CommandHandler {
 
     private static final Map<List<String>, Command<? extends BotApiMethod<?>>> commands = new HashMap<>();
 
-    public CommandHandler(DebugCommand debugCommand,
-                          StartCommand startCommand,
+    public CommandHandler(StartCommand startCommand,
                           AddManagerCommand addManagerCommand,
                           DeleteManagerCommand deleteManagerCommand,
                           ListManagerCommand listManagerCommand,
@@ -48,9 +46,7 @@ public class CommandHandler {
                           AddUserCommand addUserCommand,
                           ChangeUserPasswordCommand changeUserPasswordCommand,
                           ChangeUserEnabledCommand changeUserEnabledCommand,
-                          DeleteUserCommand deleteUserCommand) {
-        commands.put(debugCommand.getCommandNames(), debugCommand);
-        commands.put(debugCommand.getCommandNames(), debugCommand);
+                          DeleteTelegramUserCommand deleteTelegramUserCommand) {
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(addManagerCommand.getCommandNames(), addManagerCommand);
         commands.put(deleteManagerCommand.getCommandNames(), deleteManagerCommand);
@@ -62,7 +58,7 @@ public class CommandHandler {
         commands.put(addUserCommand.getCommandNames(), addUserCommand);
         commands.put(changeUserPasswordCommand.getCommandNames(), changeUserPasswordCommand);
         commands.put(changeUserEnabledCommand.getCommandNames(), changeUserEnabledCommand);
-        commands.put(deleteUserCommand.getCommandNames(), deleteUserCommand);
+        commands.put(deleteTelegramUserCommand.getCommandNames(), deleteTelegramUserCommand);
     }
 
     public BotApiMethod<? extends Serializable> handleCommands(Update update) {
@@ -79,7 +75,7 @@ public class CommandHandler {
                 .filter(keys -> keys.contains(finalCommand.toLowerCase()) || keys.contains(messageText.toLowerCase().replace(' ', '_')))
                 .findFirst()
                 .map(commands::get).orElse(null);
-        if (commandHandler != null && commandHandler.isManager(update.getMessage().getFrom().getId().toString())) {
+        if (commandHandler != null && commandHandler.isManager(update.getMessage().getFrom().getId())) {
             log.info("Recognized command {}, starting handling", command);
             return commandHandler.handle(update);
         } else {
@@ -87,7 +83,7 @@ public class CommandHandler {
         }
     }
 
-    public static String getCommandNames(String telegramId) {
+    public static String getCommandNames(Long telegramId) {
         return commands.values().stream()
                 .filter(command -> command.isManager(telegramId))
                 .map(Command::getHelp)
@@ -97,7 +93,7 @@ public class CommandHandler {
 
     public static List<Command> getCommands(Update update) {
         return commands.values().stream()
-                .filter(command -> command.isManager(update.getMessage().getFrom().getId().toString()))
+                .filter(command -> command.isManager(update.getMessage().getFrom().getId()))
                 .collect(Collectors.toList());
     }
 }

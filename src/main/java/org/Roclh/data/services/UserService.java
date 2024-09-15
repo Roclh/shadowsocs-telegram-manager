@@ -1,9 +1,10 @@
-package org.Roclh.data.model.user;
+package org.Roclh.data.services;
 
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.repositories.UserRepository;
 import org.Roclh.utils.ScriptRunner;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -27,40 +28,43 @@ public class UserService {
         getAllUsers().stream()
                 .filter(userModel -> userModel.isAdded() && userModel.getUsedPort() != null && userModel.getPassword() != null)
                 .forEach(this::executeShScriptAddUser);
-
     }
 
     public boolean saveUser(@NonNull UserModel userModel) {
         try {
-            userRepository.save(userModel);
+            userRepository.save(getUser(userModel.getId()).map(user->{
+                        user.getUserModel().setRole(userModel.getUserModel().getRole());
+                        user.getUserModel().setTelegramId(userModel.getUserModel().getTelegramId());
+                        user.getUserModel().setTelegramName(userModel.getUserModel().getTelegramName());
+                        user.getUserModel().setChatId(userModel.getUserModel().getChatId());
+                        user.setPassword(userModel.getPassword());
+                        user.setAdded(userModel.isAdded());
+                        user.setUsedPort(userModel.getUsedPort());
+                        return user;
+                    }
+            ).orElse(userModel));
             return true;
         } catch (Exception e) {
             log.error("Failed to add user", e);
             return false;
         }
     }
-
-    public boolean updateUser(@NonNull String telegramId, @NonNull UserModel userModel) {
-        return userRepository.updateByTelegramId(userModel.getId(), userModel.getTelegramName(), userModel.getUsedPort(), userModel.getPassword(), userModel.isAdded(), telegramId) > 0;
+    public Optional<UserModel> getUser(@NonNull Long userId) {
+        return userRepository.findByUserModel_TelegramId(userId);
     }
 
-    public boolean updateUser(@NonNull String telegramId, @NonNull String port, @NonNull String password, boolean isAdded){
-        return userRepository.updateUsedPortAndPasswordAndIsAddedByTelegramId(port, password, isAdded, telegramId) > 0;
+    public boolean changePassword(Long telegramId, String password) {
+        return userRepository.updatePasswordByUserModel_TelegramId(password, telegramId);
     }
 
-    public Optional<UserModel> getUser(@NonNull String userId) {
-        return userRepository.findByTelegramId(userId);
+    public boolean deleteUser(@NonNull Long telegramId){
+        return userRepository.deleteByUserModel_TelegramId(telegramId) > 0;
     }
-
-    public boolean changePassword(String telegramId, String password) {
-        return userRepository.updatePasswordByTelegramId(password, telegramId) > 0;
-    }
-
     public boolean delUser(@NonNull UserModel userModel) {
-        return userRepository.deleteByTelegramId(userModel.getTelegramId()) > 0;
+        return userRepository.deleteByUserModel_TelegramId(userModel.getUserModel().getTelegramId()) > 0;
     }
 
-    public boolean delUser(@NonNull String port) {
+    public boolean delUser(@NonNull Long port) {
         return userRepository.deleteByUsedPort(port) > 0;
     }
 
@@ -69,8 +73,8 @@ public class UserService {
     }
 
 
-    public boolean changeUserEnabled(String userId, boolean isEnabled) {
-        boolean isChanged = userRepository.updateIsAddedByTelegramId(isEnabled, userId) > 0;
+    public boolean changeUserEnabled(Long userId, boolean isEnabled) {
+        boolean isChanged = userRepository.updateIsAddedByUserModel_TelegramId(isEnabled, userId) > 0;
         boolean wasExecuted = false;
         if (isChanged) {
             wasExecuted = getUser(userId).map((userModel1) -> {
@@ -123,7 +127,11 @@ public class UserService {
                     """;
             ScriptRunner.createShScript(scriptContent, scriptPath);
         }
-        return ScriptRunner.runCommand(new String[]{"./" + scriptPath, userModel.getTelegramName() + ":" + userModel.getTelegramId(), userModel.getUsedPort(), userModel.getPassword()},
+        if(userModel.getUsedPort() == null || userModel.getPassword() == null){
+            return false;
+        }
+        return ScriptRunner.runCommand(new String[]{"./" + scriptPath, userModel.getUserModel().getTelegramName() + ":" + userModel.getUserModel().getTelegramId(),
+                        userModel.getUsedPort().toString(), userModel.getPassword()},
                 (output) -> output.contains("started"));
     }
 
@@ -146,7 +154,10 @@ public class UserService {
                     """;
             ScriptRunner.createShScript(scriptContent, scriptPath);
         }
-        return ScriptRunner.runCommand(new String[]{"./" + scriptPath, userModel.getTelegramName() + ":" + userModel.getTelegramId(), userModel.getUsedPort(), userModel.getPassword()},
+        if(userModel.getUsedPort() == null || userModel.getPassword() == null){
+            return false;
+        }
+        return ScriptRunner.runCommand(new String[]{"./" + scriptPath, userModel.getUserModel().getTelegramName() + ":" + userModel.getUserModel().getTelegramId(), userModel.getUsedPort().toString()},
                 (output) -> output.contains("succesfully removed"));
     }
 

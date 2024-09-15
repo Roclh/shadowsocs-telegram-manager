@@ -1,8 +1,7 @@
 package org.Roclh.handlers.commands;
 
 import lombok.AllArgsConstructor;
-import org.Roclh.data.model.manager.ManagerService;
-import org.Roclh.utils.PropertiesContainer;
+import org.Roclh.data.services.TelegramUserService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 
@@ -12,11 +11,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 public abstract class AbstractCommand<T extends BotApiMethod<? extends Serializable>> implements Command<T> {
 
-    protected final PropertiesContainer propertiesContainer;
-    protected final ManagerService managerService;
+    protected final TelegramUserService telegramUserService;
 
-    public boolean isManager(String userId) {
-        return propertiesContainer.getProperties(PropertiesContainer.MANAGERS_KEY).contains(userId)
-                || managerService.getManager(userId) != null;
+    public boolean isManager(Long userId) {
+        return telegramUserService.getManager(userId).isPresent();
     }
 }

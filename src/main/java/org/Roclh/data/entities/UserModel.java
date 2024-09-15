@@ -1,16 +1,18 @@
-package org.Roclh.data.model.user;
+package org.Roclh.data.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
@@ -24,30 +26,24 @@ import java.util.Objects;
 @Entity
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_model_gen")
     @SequenceGenerator(name = "user_model_gen", sequenceName = "user_model_seq")
     @Column(name = "id", nullable = false)
     private Long id;
-
-    @NonNull
-    @Column(unique = true)
-    private String telegramId;
-    @Nullable
-    private String telegramName;
-    @Nullable
-    private String usedPort;
+    @OneToOne
+    @JoinColumn(name = "user_model_id")
+    private TelegramUserModel userModel;
     @Nullable
     private String password;
     @Nullable
-    private Long chatId;
+    private Long usedPort;
     private boolean isAdded;
 
     @Override
     public String toString() {
-        return "[" + telegramId + ":'" + telegramName + "']: " +
+        return "[" + userModel.getTelegramId() + ":'" + userModel.getTelegramName() + "']: " +
                 " usedPort='" + usedPort + '\'' +
                 ", isAdded=" + isAdded +
                 ", password=" + password;

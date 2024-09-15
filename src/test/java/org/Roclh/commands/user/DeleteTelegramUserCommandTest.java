@@ -1,6 +1,6 @@
 package org.Roclh.commands.user;
 
-import org.Roclh.data.model.user.UserModel;
+import org.Roclh.data.entities.UserModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 @SpringBootTest
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class DeleteUserCommandTest extends CommonUserCommandTest {
+public class DeleteTelegramUserCommandTest extends CommonUserCommandTest {
 
     @BeforeEach
     public void init() {
