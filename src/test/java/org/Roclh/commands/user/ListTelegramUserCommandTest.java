@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @SpringBootTest
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-public class ListCommandTest extends CommonUserCommandTest {
+public class ListTelegramUserCommandTest extends CommonUserCommandTest {
 
     @Autowired
     private ListCommand listCommand;
@@ -30,7 +30,7 @@ public class ListCommandTest extends CommonUserCommandTest {
     public void whenListCommand_thenListOfUsers() {
         SendMessage sendMessage = listCommand.handle(update);
         List<UserModel> allUsers = userService.getAllUsers();
-        commonSendMessageValidation(sendMessage, allUsers.size() + " registered users:\n" +
+        commonSendMessageValidation(sendMessage, allUsers.size() + " added users:\n" +
                 allUsers.stream().map(UserModel::toString)
                         .collect(Collectors.joining("\n")));
     }

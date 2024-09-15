@@ -1,4 +1,4 @@
-package org.Roclh.handlers.commands.user;
+package org.Roclh.handlers.commands.telegramUser;
 
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;

@@ -3,17 +3,19 @@ package org.Roclh.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.handlers.commands.manager.AddManagerCommand;
 import org.Roclh.handlers.commands.sh.EchoCommand;
+import org.Roclh.handlers.commands.sh.ScreenListCommand;
 import org.Roclh.handlers.commands.user.AddUserCommand;
 import org.Roclh.handlers.commands.user.AddUserWithoutPasswordCommand;
 import org.Roclh.handlers.commands.Command;
 import org.Roclh.handlers.commands.manager.DeleteManagerCommand;
 import org.Roclh.handlers.commands.user.ChangeUserEnabledCommand;
 import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
-import org.Roclh.handlers.commands.user.DeleteTelegramUserCommand;
-import org.Roclh.handlers.commands.user.ListCommand;
+import org.Roclh.handlers.commands.telegramUser.DeleteTelegramUserCommand;
+import org.Roclh.handlers.commands.telegramUser.ListTelegramUserCommand;
 import org.Roclh.handlers.commands.manager.ListManagerCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
 import org.Roclh.handlers.commands.common.StartCommand;
+import org.Roclh.handlers.commands.user.ListCommand;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -40,25 +42,29 @@ public class CommandHandler {
                           DeleteManagerCommand deleteManagerCommand,
                           ListManagerCommand listManagerCommand,
                           RegisterCommand registerCommand,
+                          ListTelegramUserCommand listTelegramUserCommand,
                           ListCommand listCommand,
                           AddUserWithoutPasswordCommand addUserWithoutPasswordCommand,
                           EchoCommand echoCommand,
                           AddUserCommand addUserCommand,
                           ChangeUserPasswordCommand changeUserPasswordCommand,
                           ChangeUserEnabledCommand changeUserEnabledCommand,
-                          DeleteTelegramUserCommand deleteTelegramUserCommand) {
+                          DeleteTelegramUserCommand deleteTelegramUserCommand,
+                          ScreenListCommand screenListCommand) {
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(addManagerCommand.getCommandNames(), addManagerCommand);
         commands.put(deleteManagerCommand.getCommandNames(), deleteManagerCommand);
         commands.put(listManagerCommand.getCommandNames(), listManagerCommand);
         commands.put(registerCommand.getCommandNames(), registerCommand);
         commands.put(addUserWithoutPasswordCommand.getCommandNames(), addUserWithoutPasswordCommand);
-        commands.put(listCommand.getCommandNames(), listCommand);
+        commands.put(listTelegramUserCommand.getCommandNames(), listTelegramUserCommand);
         commands.put(echoCommand.getCommandNames(), echoCommand);
         commands.put(addUserCommand.getCommandNames(), addUserCommand);
         commands.put(changeUserPasswordCommand.getCommandNames(), changeUserPasswordCommand);
         commands.put(changeUserEnabledCommand.getCommandNames(), changeUserEnabledCommand);
         commands.put(deleteTelegramUserCommand.getCommandNames(), deleteTelegramUserCommand);
+        commands.put(screenListCommand.getCommandNames(), screenListCommand);
+        commands.put(listCommand.getCommandNames(), listCommand);
     }
 
     public BotApiMethod<? extends Serializable> handleCommands(Update update) {

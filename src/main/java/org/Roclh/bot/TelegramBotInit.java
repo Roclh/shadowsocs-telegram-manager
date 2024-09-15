@@ -32,13 +32,13 @@ public class TelegramBotInit {
             telegramBotsApi.registerBot(telegramBot);
             telegramBotStorage.setTelegramBot(telegramBot);
             telegramUserService.saveUser(telegramUserService
-                    .getUser(Long.parseLong(telegramBotProperties.getDefaultManagerId()))
+                    .getUser(telegramBotProperties.getDefaultManagerId())
                     .map(user -> {
                         user.setRole(Role.ROOT);
                         return user;
                     })
                     .orElse(TelegramUserModel.builder()
-                            .telegramId(Long.parseLong(telegramBotProperties.getDefaultManagerId()))
+                            .telegramId(telegramBotProperties.getDefaultManagerId())
                             .role(Role.ROOT)
                             .build()));
             log.info("Registered bot successfully");

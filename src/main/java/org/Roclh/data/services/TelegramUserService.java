@@ -62,8 +62,10 @@ public class TelegramUserService {
         return telegramUserRepository.existsByTelegramId(telegramId);
     }
 
-    public Optional<TelegramUserModel> getManager(Long telegramId) {
-        return telegramUserRepository.findByTelegramIdAndRole(telegramId, Role.MANAGER);
+    public boolean isAllowed(Long telegramId, Role required){
+        return telegramUserRepository.findByTelegramId(telegramId).map(
+                user -> user.getRole().prior >= required.prior
+        ).orElse(false);
     }
 
     public Optional<TelegramUserModel> getUser(Long telegramId) {
