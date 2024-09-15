@@ -54,6 +54,10 @@ public class TelegramUserService {
         return telegramUserRepository.findAll().stream().filter(filter).toList();
     }
 
+    public List<TelegramUserModel> getUsers() {
+        return telegramUserRepository.findAll();
+    }
+
     public boolean exists(Long telegramId) {
         return telegramUserRepository.existsByTelegramId(telegramId);
     }
