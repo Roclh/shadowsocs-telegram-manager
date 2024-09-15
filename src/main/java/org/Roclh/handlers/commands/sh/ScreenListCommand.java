@@ -49,7 +49,7 @@ public class ScreenListCommand extends AbstractCommand<SendMessage> {
     }
 
     private String executeShScript() {
-        log.info("Executing echo sh script");
+        log.info("Executing screen -ls sh script");
         return ScriptRunner.runCommandWithResult(new String[] {"./" + scriptPath});
     }
 }
