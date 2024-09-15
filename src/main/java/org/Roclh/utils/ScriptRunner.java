@@ -1,6 +1,7 @@
 package org.Roclh.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -71,6 +72,32 @@ public class ScriptRunner {
         } catch (IOException | ExecutionException | InterruptedException | TimeoutException e) {
             log.error("Failed to execute script " + String.join(" ", command), e);
             return false;
+        }
+    }
+
+    @Nullable
+    public static String runCommandWithResult(String[] command){
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        try {
+            Process p = processBuilder.start().onExit().get(10, TimeUnit.SECONDS);
+            StringBuilder output = new StringBuilder();
+            BufferedReader stdInput = new BufferedReader(new
+                    InputStreamReader(p.getInputStream()));
+            stdInput.lines().forEach(line->{
+                log.info(line);
+                output.append(line);
+            });
+
+            BufferedReader stdError = new BufferedReader(new
+                    InputStreamReader(p.getErrorStream()));
+            stdError.lines().forEach(line->{
+                log.info(line);
+                output.append(line);
+            });
+            return output.toString();
+        } catch (IOException | ExecutionException | InterruptedException | TimeoutException e) {
+            log.error("Failed to execute script " + String.join(" ", command), e);
+            return null;
         }
     }
 }

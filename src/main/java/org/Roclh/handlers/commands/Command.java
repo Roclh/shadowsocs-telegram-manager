@@ -1,12 +1,12 @@
 package org.Roclh.handlers.commands;
 
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.io.Serializable;
 import java.util.List;
 
-public interface Command<T extends BotApiMethod<? extends Serializable>> {
+public interface Command<T extends PartialBotApiMethod<? extends Serializable>> {
     T handle(Update update);
 
     default String getHelp() {
