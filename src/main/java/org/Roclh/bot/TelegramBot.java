@@ -7,6 +7,8 @@ import org.Roclh.handlers.CommandHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -47,13 +49,17 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    public <T extends Serializable> void sendMessage(BotApiMethod<T> sendMessage) {
+    public <T extends Serializable> void sendMessage(PartialBotApiMethod<T> sendMessage) {
         log.info("Trying to send message to telegram client {}", sendMessage);
         if (sendMessage == null) {
             return;
         }
         try {
-            execute(sendMessage);
+            if(sendMessage instanceof BotApiMethod<T>){
+                execute((BotApiMethod<T>) sendMessage);
+            }else if(sendMessage instanceof SendMediaGroup){
+                execute((SendMediaGroup) sendMessage);
+            }
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }

@@ -2,6 +2,7 @@ package org.Roclh.handlers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.handlers.commands.manager.AddManagerCommand;
+import org.Roclh.handlers.commands.manager.ExportCsvCommand;
 import org.Roclh.handlers.commands.sh.EchoCommand;
 import org.Roclh.handlers.commands.sh.ScreenListCommand;
 import org.Roclh.handlers.commands.user.AddUserCommand;
@@ -19,7 +20,7 @@ import org.Roclh.handlers.commands.user.ListCommand;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CommandHandler {
 
-    private static final Map<List<String>, Command<? extends BotApiMethod<?>>> commands = new HashMap<>();
+    private static final Map<List<String>, Command<? extends PartialBotApiMethod<?>>> commands = new HashMap<>();
 
     public CommandHandler(StartCommand startCommand,
                           AddManagerCommand addManagerCommand,
@@ -50,7 +51,7 @@ public class CommandHandler {
                           ChangeUserPasswordCommand changeUserPasswordCommand,
                           ChangeUserEnabledCommand changeUserEnabledCommand,
                           DeleteTelegramUserCommand deleteTelegramUserCommand,
-                          ScreenListCommand screenListCommand) {
+                          ScreenListCommand screenListCommand, ExportCsvCommand exportCsvCommand) {
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(addManagerCommand.getCommandNames(), addManagerCommand);
         commands.put(deleteManagerCommand.getCommandNames(), deleteManagerCommand);
@@ -65,9 +66,10 @@ public class CommandHandler {
         commands.put(deleteTelegramUserCommand.getCommandNames(), deleteTelegramUserCommand);
         commands.put(screenListCommand.getCommandNames(), screenListCommand);
         commands.put(listCommand.getCommandNames(), listCommand);
+        commands.put(exportCsvCommand.getCommandNames(), exportCsvCommand);
     }
 
-    public BotApiMethod<? extends Serializable> handleCommands(Update update) {
+    public PartialBotApiMethod<? extends Serializable> handleCommands(Update update) {
         String messageText = update.getMessage().getText();
         String command = messageText.split(" ")[0];
         long chatId = update.getMessage().getChatId();
@@ -77,7 +79,7 @@ public class CommandHandler {
             command = command.substring(1);
         }
         String finalCommand = command;
-        Command<? extends BotApiMethod<?>> commandHandler = commands.keySet().stream()
+        Command<? extends PartialBotApiMethod<?>> commandHandler = commands.keySet().stream()
                 .filter(keys -> keys.contains(finalCommand.toLowerCase()) || keys.contains(messageText.toLowerCase().replace(' ', '_')))
                 .findFirst()
                 .map(commands::get).orElse(null);
