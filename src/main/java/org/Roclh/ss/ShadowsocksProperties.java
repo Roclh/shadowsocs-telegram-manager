@@ -22,10 +22,17 @@ public class ShadowsocksProperties {
     private String address;
     @NotBlank
     private String availablePorts;
+    @NotBlank
+    private String defaultMethod;
 
     @EventListener(ContextRefreshedEvent.class)
     @Order(0)
     public void init() {
+        createDefaultConfig();
+        createConfigWithPlugins();
+    }
+
+    private void createDefaultConfig(){
         try (FileWriter fileWriter = new FileWriter("/etc/shadowsocks-libev/config-example.json")) {
             String configuration = """
                     {
@@ -35,10 +42,11 @@ public class ShadowsocksProperties {
                         "local_port":1080,
                         "password":"123456",
                         "timeout":60,
-                        "method":"chacha20-ietf-poly1305"
+                        "method":"${method}"
                     }
                     """;
             configuration = configuration.replace("${address}", this.address);
+            configuration = configuration.replace("${method}", this.defaultMethod);
             fileWriter.write(configuration);
             log.info("Created a configuration file with content {}", configuration);
         } catch (IOException e) {
@@ -46,6 +54,27 @@ public class ShadowsocksProperties {
         }
     }
 
+    private void createConfigWithPlugins(){
+        try (FileWriter fileWriter = new FileWriter("/etc/shadowsocks-libev/config-plugin-example.json")) {
+            String configuration = """
+                    {
+                        "server":"${address}",
+                        "mode":"tcp_and_udp",
+                        "server_port":8488,
+                        "local_port":1080,
+                        "password":"123456",
+                        "timeout":60,
+                        "method":"${method}"
+                    }
+                    """;
+            configuration = configuration.replace("${address}", this.address);
+            configuration = configuration.replace("${method}", this.defaultMethod);
+            fileWriter.write(configuration);
+            log.info("Created a configuration file with content {}", configuration);
+        } catch (IOException e) {
+            log.error("Failed to create a file", e);
+        }
+    }
     public PortsRange getPortRange(){
         return PortsRange.from(availablePorts);
     }

@@ -12,6 +12,12 @@ services:
       interval: 20s
       timeout: 3s
       retries: 3
+    volumes:
+      - /lib/modules:/lib/modules:ro
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_MODULE
     depends_on:
       - db
     environment:

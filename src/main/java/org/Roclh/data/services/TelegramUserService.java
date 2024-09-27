@@ -24,7 +24,7 @@ public class TelegramUserService {
             return false;
         }
         try {
-            telegramUserRepository.save(getUser(userModel.getTelegramId())
+            telegramUserRepository.saveAndFlush(getUser(userModel.getTelegramId())
                     .map(user -> {
                         user.setTelegramId(userModel.getTelegramId());
                         if(userModel.getRole().prior > user.getRole().prior){

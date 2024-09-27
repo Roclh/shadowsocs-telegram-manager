@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.repositories.UserRepository;
-import org.Roclh.utils.ScriptRunner;
+import org.Roclh.sh.ScriptRunner;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
@@ -32,7 +32,7 @@ public class UserService {
 
     public boolean saveUser(@NonNull UserModel userModel) {
         try {
-            userRepository.save(getUser(userModel.getId()).map(user->{
+            userRepository.saveAndFlush(getUser(userModel.getUserModel().getId()).map(user->{
                         user.getUserModel().setRole(userModel.getUserModel().getRole());
                         user.getUserModel().setTelegramId(userModel.getUserModel().getTelegramId());
                         user.getUserModel().setTelegramName(userModel.getUserModel().getTelegramName());
@@ -54,7 +54,7 @@ public class UserService {
     }
 
     public boolean changePassword(Long telegramId, String password) {
-        return userRepository.updatePasswordByUserModel_TelegramId(password, telegramId);
+        return userRepository.updatePasswordByUserModel_TelegramId(password, telegramId) > 0;
     }
 
     public boolean deleteUser(@NonNull Long telegramId){
@@ -136,6 +136,9 @@ public class UserService {
     }
 
     public boolean executeShScriptDisableUser(@NonNull UserModel userModel, String scriptPath) {
+        if(userModel.getUsedPort() == null || userModel.getPassword() == null){
+            return false;
+        }
         if (!ScriptRunner.isShScriptExists(scriptPath)) {
             String scriptContent = """
                     #!/bin/bash
@@ -153,9 +156,6 @@ public class UserService {
                               netstat -ltp | grep ss-server
                     """;
             ScriptRunner.createShScript(scriptContent, scriptPath);
-        }
-        if(userModel.getUsedPort() == null || userModel.getPassword() == null){
-            return false;
         }
         return ScriptRunner.runCommand(new String[]{"./" + scriptPath, userModel.getUserModel().getTelegramName() + ":" + userModel.getUserModel().getTelegramId(), userModel.getUsedPort().toString()},
                 (output) -> output.contains("succesfully removed"));

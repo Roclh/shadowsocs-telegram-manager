@@ -31,7 +31,7 @@ public class ListTelegramUserCommandTest extends CommonUserCommandTest {
         SendMessage sendMessage = listCommand.handle(update);
         List<UserModel> allUsers = userService.getAllUsers();
         commonSendMessageValidation(sendMessage, allUsers.size() + " added users:\n" +
-                allUsers.stream().map(UserModel::toString)
+                allUsers.stream().map(u-> u.toString() + bandwidthService.getRule(u.getUserModel().getTelegramId()).map(r -> "," + r).orElse(""))
                         .collect(Collectors.joining("\n")));
     }
 
