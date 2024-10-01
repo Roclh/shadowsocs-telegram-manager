@@ -1,21 +1,25 @@
 package org.Roclh.handlers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.handlers.commands.manager.AddManagerCommand;
-import org.Roclh.handlers.commands.manager.ExportCsvCommand;
-import org.Roclh.handlers.commands.sh.EchoCommand;
-import org.Roclh.handlers.commands.sh.ScreenListCommand;
-import org.Roclh.handlers.commands.user.AddUserCommand;
-import org.Roclh.handlers.commands.user.AddUserWithoutPasswordCommand;
 import org.Roclh.handlers.commands.Command;
-import org.Roclh.handlers.commands.manager.DeleteManagerCommand;
-import org.Roclh.handlers.commands.user.ChangeUserEnabledCommand;
-import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
-import org.Roclh.handlers.commands.telegramUser.DeleteTelegramUserCommand;
-import org.Roclh.handlers.commands.telegramUser.ListTelegramUserCommand;
-import org.Roclh.handlers.commands.manager.ListManagerCommand;
+import org.Roclh.handlers.commands.common.GetLinkCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
 import org.Roclh.handlers.commands.common.StartCommand;
+import org.Roclh.handlers.commands.manager.AddManagerCommand;
+import org.Roclh.handlers.commands.manager.DeleteManagerCommand;
+import org.Roclh.handlers.commands.manager.ExportCsvCommand;
+import org.Roclh.handlers.commands.manager.ListManagerCommand;
+import org.Roclh.handlers.commands.sh.EchoCommand;
+import org.Roclh.handlers.commands.sh.ScreenListCommand;
+import org.Roclh.handlers.commands.telegramUser.DeleteTelegramUserCommand;
+import org.Roclh.handlers.commands.telegramUser.ListTelegramUserCommand;
+import org.Roclh.handlers.commands.user.AddContractCommand;
+import org.Roclh.handlers.commands.user.AddUserCommand;
+import org.Roclh.handlers.commands.user.AddUserWithoutPasswordCommand;
+import org.Roclh.handlers.commands.user.ChangeUserEnabledCommand;
+import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
+import org.Roclh.handlers.commands.user.DeleteUserCommand;
+import org.Roclh.handlers.commands.user.LimitFlowCommand;
 import org.Roclh.handlers.commands.user.ListCommand;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -51,7 +55,12 @@ public class CommandHandler {
                           ChangeUserPasswordCommand changeUserPasswordCommand,
                           ChangeUserEnabledCommand changeUserEnabledCommand,
                           DeleteTelegramUserCommand deleteTelegramUserCommand,
-                          ScreenListCommand screenListCommand, ExportCsvCommand exportCsvCommand) {
+                          ScreenListCommand screenListCommand,
+                          DeleteUserCommand deleteUserCommand,
+                          LimitFlowCommand limitFlowCommand,
+                          AddContractCommand addContractCommand,
+                          GetLinkCommand getLinkCommand,
+                          ExportCsvCommand exportCsvCommand) {
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(addManagerCommand.getCommandNames(), addManagerCommand);
         commands.put(deleteManagerCommand.getCommandNames(), deleteManagerCommand);
@@ -65,8 +74,12 @@ public class CommandHandler {
         commands.put(changeUserEnabledCommand.getCommandNames(), changeUserEnabledCommand);
         commands.put(deleteTelegramUserCommand.getCommandNames(), deleteTelegramUserCommand);
         commands.put(screenListCommand.getCommandNames(), screenListCommand);
+        commands.put(deleteUserCommand.getCommandNames(), deleteUserCommand);
+        commands.put(limitFlowCommand.getCommandNames(), limitFlowCommand);
         commands.put(listCommand.getCommandNames(), listCommand);
         commands.put(exportCsvCommand.getCommandNames(), exportCsvCommand);
+        commands.put(addContractCommand.getCommandNames(), addContractCommand);
+        commands.put(getLinkCommand.getCommandNames(), getLinkCommand);
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCommands(Update update) {

@@ -9,6 +9,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -28,7 +29,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdatesReceived(List<Update> updates) {
-        log.info("Received updates {}", updates);
+        log.info("Received updates amount: {}", updates.size());
         Update update = updates.get(0);
         update.setMessage(mergeMessages(updates.stream().map(Update::getMessage).toList()));
         update.setEditedMessage(mergeMessages(updates.stream().map(Update::getEditedMessage).toList()));
@@ -55,10 +56,12 @@ public class TelegramBot extends TelegramLongPollingBot {
             return;
         }
         try {
-            if(sendMessage instanceof BotApiMethod<T>){
+            if (sendMessage instanceof BotApiMethod<T>) {
                 execute((BotApiMethod<T>) sendMessage);
-            }else if(sendMessage instanceof SendMediaGroup){
+            } else if (sendMessage instanceof SendMediaGroup) {
                 execute((SendMediaGroup) sendMessage);
+            } else if (sendMessage instanceof SendPhoto) {
+                execute((SendPhoto) sendMessage);
             }
         } catch (TelegramApiException e) {
             log.error(e.getMessage());

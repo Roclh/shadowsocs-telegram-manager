@@ -1,6 +1,7 @@
 package org.Roclh.handlers.commands.user;
 
 import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
@@ -14,9 +15,12 @@ import java.util.stream.Collectors;
 @Component
 public class ListCommand extends AbstractCommand<SendMessage> {
     private final UserService userService;
-    public ListCommand(TelegramUserService telegramUserService, UserService userService) {
+    private final BandwidthService bandwidthService;
+
+    public ListCommand(TelegramUserService telegramUserService, UserService userService, BandwidthService bandwidthService) {
         super(telegramUserService);
         this.userService = userService;
+        this.bandwidthService = bandwidthService;
     }
 
     @Override
@@ -26,7 +30,7 @@ public class ListCommand extends AbstractCommand<SendMessage> {
         sendMessage.setChatId(String.valueOf(chatId));
         List<UserModel> allUsers = userService.getAllUsers();
         sendMessage.setText(allUsers.size() + " added users:\n" +
-                allUsers.stream().map(UserModel::toString)
+                allUsers.stream().map(u-> u.toString() + bandwidthService.getRule(u.getUserModel().getTelegramId()).map(r -> "," + r).orElse(""))
                         .collect(Collectors.joining("\n")));
         return sendMessage;
     }
@@ -37,6 +41,6 @@ public class ListCommand extends AbstractCommand<SendMessage> {
     }
     @Override
     public List<String> getCommandNames() {
-        return List.of("l", "list", "listusers");
+        return List.of("list", "l", "listusers");
     }
 }

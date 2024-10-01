@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
@@ -12,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 
+@Slf4j
 @Component
 public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
@@ -34,11 +36,12 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 
-        if(!telegramUserService.exists(telegramId)){
-            sendMessage.setText("User with id " + telegramId + " was not added! User is not registered!");
+        TelegramUserModel telegramUserModel = telegramUserService.getUser(telegramId).orElse(null);
+        if (telegramUserModel == null) {
+            log.error("Failed to add user - Telegram user with id {} does not exists!", telegramId);
+            sendMessage.setText("Failed to add user - Telegram user with id " + telegramId + " does not exists!");
             return sendMessage;
         }
-        TelegramUserModel telegramUserModel = telegramUserService.getUser(telegramId).orElseThrow(() -> new RuntimeException("Illegal state"));
         String password = PasswordGenerator.md5(telegramUserModel.getTelegramName() + ":" + telegramUserModel.getTelegramId())
                 .orElseThrow();
         UserModel userModel = UserModel.builder()
@@ -49,11 +52,13 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
                 .build();
 
         if (!userManager.executeShScriptAddUser(userModel)) {
-            sendMessage.setText("User with id " + telegramId + " was not added! Failed to execute script");
+            log.error("Failed to add user - failed to execute sh script for user with id {}", telegramId);
+            sendMessage.setText("Failed to add user - failed to execute sh script for user with id " + telegramId);
             return sendMessage;
         }
         if (!userManager.saveUser(userModel)) {
-            sendMessage.setText("User with id " + telegramId + "was not added! Failed to update database");
+            log.error("Failed to add user - failed to save user model with id {}", telegramId);
+            sendMessage.setText("Failed to add user - failed to save user model with id " + telegramId);
             return sendMessage;
         }
         sendMessage.setText("User with id " + telegramId + " added successfully!");

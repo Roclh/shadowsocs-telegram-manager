@@ -1,4 +1,4 @@
-package org.Roclh.utils;
+package org.Roclh.sh;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
@@ -32,6 +32,7 @@ public class ScriptRunner {
     }
     public static boolean runCommand(String[] command) {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
+        log.info("Executing command {}, command with args: {}", command[0], command);
         try {
             Process p = processBuilder.start().onExit().get();
 
@@ -52,6 +53,7 @@ public class ScriptRunner {
 
     public static boolean runCommand(String[] command, Predicate<String> successCondition) {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
+        log.info("Executing command {}, command with args: {}", command[0], command);
         try {
             Process p = processBuilder.start().onExit().get(10, TimeUnit.SECONDS);
             StringBuilder output = new StringBuilder();
@@ -78,6 +80,7 @@ public class ScriptRunner {
     @Nullable
     public static String runCommandWithResult(String[] command){
         ProcessBuilder processBuilder = new ProcessBuilder(command);
+        log.info("Executing command {}, command with args: {}", command[0], command);
         try {
             Process p = processBuilder.start().onExit().get(10, TimeUnit.SECONDS);
             StringBuilder output = new StringBuilder();

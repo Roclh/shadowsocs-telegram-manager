@@ -15,6 +15,7 @@ RUN apk upgrade --update \
     mbedtls \
     udns \
     pcre \
+    iproute2 \
     libev \
     shadowsocks-libev && \
     mkdir -p /etc/shadowsocks-libev

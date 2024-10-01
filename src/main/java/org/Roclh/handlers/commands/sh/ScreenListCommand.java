@@ -3,14 +3,14 @@ package org.Roclh.handlers.commands.sh;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.utils.ScriptRunner;
+import org.Roclh.sh.ScriptRunner;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 
-import static org.Roclh.utils.ScriptRunner.isShScriptExists;
+import static org.Roclh.sh.ScriptRunner.isShScriptExists;
 
 @Component
 @Slf4j

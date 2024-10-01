@@ -24,12 +24,12 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
     @Transactional
     @Modifying
     @Query("update UserModel u set u.password = ?1 where u.userModel.telegramId = ?2")
-    boolean updatePasswordByUserModel_TelegramId(String password, Long telegramId);
+    long updatePasswordByUserModel_TelegramId(String password, Long telegramId);
 
     @Transactional
     @Modifying
     @Query("delete UserModel u where u.userModel.telegramId = ?1")
-    long deleteByUserModel_TelegramId(Long telegramId);
+    int deleteByUserModel_TelegramId(Long telegramId);
 
     long deleteByUserModel(TelegramUserModel userModel);
 
