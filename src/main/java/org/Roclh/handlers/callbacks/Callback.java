@@ -1,16 +1,11 @@
 package org.Roclh.handlers.callbacks;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 
-@Data
-@AllArgsConstructor
-@Builder
-public class Callback {
+import java.io.Serializable;
 
-    private CallbackType callbackType;
+public interface Callback<T extends PartialBotApiMethod<? extends Serializable>>{
+    T apply(CallbackData callbackData);
 
-    private String data;
-
+    String getName();
 }

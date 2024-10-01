@@ -16,7 +16,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.groupingBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,8 +51,8 @@ public class AddUserCommandTest extends CommonUserCommandTest {
                 .usedPort(10000L)
                 .password("qwertyui")
                 .build();
-        Mockito.when(updateMessage.getText()).thenReturn("add 3 10000 qwertyui");
-        SendMessage sendMessage = addUserCommand.handle(update);
+        Mockito.when(commandData.getCommand()).thenReturn("add 3 10000 qwertyui");
+        SendMessage sendMessage = addUserCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "User with id 3 was added successfully!");
         assertEquals(5, users.size());
         assertTrue(users.stream().anyMatch(u -> u.equals(expected)));
@@ -61,28 +60,28 @@ public class AddUserCommandTest extends CommonUserCommandTest {
 
     @Test
     public void whenAddIncorrectUser_thenUserIsNotChanged() {
-        Mockito.when(updateMessage.getText()).thenReturn("add 8 10000 qwertyui");
+        Mockito.when(commandData.getCommand()).thenReturn("add 8 10000 qwertyui");
         List<UserModel> copy = List.copyOf(users);
-        SendMessage sendMessage = addUserCommand.handle(update);
+        SendMessage sendMessage = addUserCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "User with id 8 was not added! Either it exists or failed to add");
         assertUsersWasNotChanged(copy);
     }
 
     @Test
     public void whenAddNotEnoughArguments_thenReturnWithoutChanges() {
-        Mockito.when(updateMessage.getText()).thenReturn("add 1203");
+        Mockito.when(commandData.getCommand()).thenReturn("add 1203");
         List<UserModel> copy = List.copyOf(users);
-        SendMessage sendMessage = addUserCommand.handle(update);
+        SendMessage sendMessage = addUserCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "Failed to execute command - not enough arguments");
         assertUsersWasNotChanged(copy);
     }
 
     @Test
     public void whenAddScriptWasNotSuccessfull_thenReturnWithoutChanges() {
-        Mockito.when(updateMessage.getText()).thenReturn("add 3 10000 qwertyui");
+        Mockito.when(commandData.getCommand()).thenReturn("add 3 10000 qwertyui");
         Mockito.when(userService.executeShScriptAddUser(any())).thenReturn(false);
         List<UserModel> copy = List.copyOf(users);
-        SendMessage sendMessage = addUserCommand.handle(update);
+        SendMessage sendMessage = addUserCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "User with id 3 was not added! Either it exists or failed to add");
         assertUsersWasNotChanged(copy);
     }

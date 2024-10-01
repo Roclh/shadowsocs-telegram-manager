@@ -29,7 +29,7 @@ public class ShadowsocksProperties {
     @Order(0)
     public void init() {
         createDefaultConfig();
-        createConfigWithPlugins();
+        createConfigWithV2RayPlugin();
     }
 
     private void createDefaultConfig(){
@@ -54,8 +54,8 @@ public class ShadowsocksProperties {
         }
     }
 
-    private void createConfigWithPlugins(){
-        try (FileWriter fileWriter = new FileWriter("/etc/shadowsocks-libev/config-plugin-example.json")) {
+    private void createConfigWithV2RayPlugin(){
+        try (FileWriter fileWriter = new FileWriter("/etc/shadowsocks-libev/config-v2ray-example.json")) {
             String configuration = """
                     {
                         "server":"${address}",
@@ -64,7 +64,9 @@ public class ShadowsocksProperties {
                         "local_port":1080,
                         "password":"123456",
                         "timeout":60,
-                        "method":"${method}"
+                        "method":"${method}",
+                        "plugin":"v2ray-plugin",
+                        "plugin_opts":"server"
                     }
                     """;
             configuration = configuration.replace("${address}", this.address);

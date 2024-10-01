@@ -5,9 +5,12 @@ import org.Roclh.data.Role;
 import org.Roclh.data.entities.BandwidthModel;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.repositories.BandwidthRepository;
 import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -24,11 +27,15 @@ public class CommonUserCommandTest extends CommonCommandTest {
     protected List<BandwidthModel> bandwidthModels = new ArrayList<>();
     @MockBean
     protected UserService userService;
-    @MockBean
-    protected BandwidthService bandwidthService;
+    @Mock
+    private BandwidthRepository bandwidthRepository;
 
+    @MockBean
+    @InjectMocks
+    protected BandwidthService bandwidthService;
     @BeforeEach
     public void init() {
+        Mockito.when(bandwidthRepository.findAll()).thenReturn(bandwidthModels);
         Mockito.when(bandwidthService.getRule(any(Long.class))).then(mock ->
                 bandwidthModels.stream().filter(b -> b.getUserModel().getUserModel().getTelegramId().equals(mock.getArgument(0, Long.class))).findFirst());
         Mockito.when(userService.getAllUsers()).thenReturn(users);

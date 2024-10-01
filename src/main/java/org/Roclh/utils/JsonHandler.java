@@ -13,18 +13,21 @@ public class JsonHandler {
 
     public static String toJson(Object object) {
         try {
-            return mapper.writeValueAsString(object);
+            String value = mapper.writeValueAsString(object);
+            log.info("Parsing result: " + value);
+            return value;
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
-            return "Internal error";
+            throw new RuntimeException();
         }
     }
 
-    public static <T> T toObject(Object object, Class<T> clazz) {
+    public static <T> T toObject(String json, Class<T> clazz) throws JsonProcessingException {
         try {
-            return mapper.convertValue(object, clazz);
-        } catch (ClassCastException e) {
-            return null;
+            return mapper.readValue(json, clazz);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse json {} to class {}", json, clazz, e);
+            throw e;
         }
     }
 
@@ -33,6 +36,7 @@ public class JsonHandler {
             return mapper.readValue(json, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
             return List.of();
         }
     }

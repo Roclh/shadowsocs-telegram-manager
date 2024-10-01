@@ -3,16 +3,16 @@ package org.Roclh.handlers.commands.common;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.services.ServerSharingService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.data.services.ServerSharingService;
+import org.Roclh.handlers.commands.CommandData;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -34,12 +34,12 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
     }
 
     @Override
-    public PartialBotApiMethod<? extends Serializable> handle(Update update) {
+    public PartialBotApiMethod<? extends Serializable> handle(CommandData commandData) {
         SendPhoto sendPhoto = new SendPhoto();
         SendMessage sendMessage = new SendMessage();
-        sendPhoto.setChatId(update.getMessage().getChatId());
-        sendMessage.setChatId(update.getMessage().getChatId());
-        Long telegramId = update.getMessage().getFrom().getId();
+        sendPhoto.setChatId(commandData.getChatId());
+        sendMessage.setChatId(commandData.getChatId());
+        Long telegramId = commandData.getTelegramId();
 
 
         UserModel userModel = userService.getUser(telegramId).orElse(null);
@@ -73,10 +73,6 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
         return sendPhoto;
     }
 
-    @Override
-    public String inlineName() {
-        return "Получить QR код";
-    }
 
     @Override
     public boolean isManager(Long userId) {
@@ -90,6 +86,6 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
 
     @Override
     public List<String> getCommandNames() {
-        return List.of("qr", "link", inlineName().replace(' ', '_').toLowerCase());
+        return List.of("qr", "link");
     }
 }

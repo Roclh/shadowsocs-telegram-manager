@@ -34,26 +34,26 @@ public class ChangeUserPasswordCommandTest extends CommonUserCommandTest {
     @Test
     public void whenChangeCorrectPassword_thenPasswordIsChanged() {
         String expectedPassword = "qwertyui";
-        Mockito.when(updateMessage.getText()).thenReturn("chpwdw 3 " + expectedPassword);
-        SendMessage sendMessage = changeUserPasswordCommand.handle(update);
+        Mockito.when(commandData.getCommand()).thenReturn("chpwdw 3 " + expectedPassword);
+        SendMessage sendMessage = changeUserPasswordCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "Successfully changed password for user with id 3");
         assertEquals(expectedPassword, users.get(2).getPassword());
     }
 
     @Test
     public void whenAddNotEnoughArguments_thenReturnWithoutChanges() {
-        Mockito.when(updateMessage.getText()).thenReturn("chpwdw 3");
+        Mockito.when(commandData.getCommand()).thenReturn("chpwdw 3");
         List<UserModel> copy = List.copyOf(users);
-        SendMessage sendMessage = changeUserPasswordCommand.handle(update);
+        SendMessage sendMessage = changeUserPasswordCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "Failed to execute command - not enough arguments");
         assertUsersWasNotChanged(copy);
     }
 
     @Test
     public void whenChangePasswordWithIncorrectId_thenReturnWithoutChanges() {
-        Mockito.when(updateMessage.getText()).thenReturn("chpwdw 10 qwertyui");
+        Mockito.when(commandData.getCommand()).thenReturn("chpwdw 10 qwertyui");
         List<UserModel> copy = List.copyOf(users);
-        SendMessage sendMessage = changeUserPasswordCommand.handle(update);
+        SendMessage sendMessage = changeUserPasswordCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "Failed to change password for user with id 10");
         assertUsersWasNotChanged(copy);
     }
@@ -61,9 +61,9 @@ public class ChangeUserPasswordCommandTest extends CommonUserCommandTest {
     @Test
     public void whenShScriptReturnFalse_thenReturnWithoutChanges() {
         Mockito.when(userService.executeShScriptChangePassword(any(UserModel.class))).thenReturn(false);
-        Mockito.when(updateMessage.getText()).thenReturn("chpwdw 3 qwertyui");
+        Mockito.when(commandData.getCommand()).thenReturn("chpwdw 3 qwertyui");
         List<UserModel> copy = List.copyOf(users);
-        SendMessage sendMessage = changeUserPasswordCommand.handle(update);
+        SendMessage sendMessage = changeUserPasswordCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "Failed to change password for user with id 3");
         assertUsersWasNotChanged(copy);
     }
