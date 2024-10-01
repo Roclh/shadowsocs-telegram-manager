@@ -6,12 +6,13 @@ import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.utils.PasswordGenerator;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -24,15 +25,15 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
     }
 
     @Override
-    public SendMessage handle(Update update) {
-        String[] words = update.getMessage().getText().split(" ");
+    public SendMessage handle(CommandData commandData) {
+        String[] words = commandData.getCommand().split(" ");
         if (words.length < 3) {
-            return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build();
+            return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - not enough arguments").build();
         }
 
         Long telegramId = Long.parseLong(words[1]);
         Long port = Long.parseLong(words[2]);
-        long chatId = update.getMessage().getChatId();
+        long chatId = commandData.getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 
@@ -42,7 +43,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
             sendMessage.setText("Failed to add user - Telegram user with id " + telegramId + " does not exists!");
             return sendMessage;
         }
-        String password = PasswordGenerator.md5(telegramUserModel.getTelegramName() + ":" + telegramUserModel.getTelegramId())
+        String password = PasswordGenerator.md5(telegramUserModel.getTelegramName() + ":" + telegramUserModel.getTelegramId() + UUID.randomUUID())
                 .orElseThrow();
         UserModel userModel = UserModel.builder()
                 .userModel(telegramUserModel)

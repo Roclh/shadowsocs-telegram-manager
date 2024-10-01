@@ -2,6 +2,7 @@ package org.Roclh.handlers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.handlers.commands.Command;
+import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.handlers.commands.common.GetLinkCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
 import org.Roclh.handlers.commands.common.StartCommand;
@@ -23,6 +24,7 @@ import org.Roclh.handlers.commands.user.LimitFlowCommand;
 import org.Roclh.handlers.commands.user.ListCommand;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -83,22 +85,23 @@ public class CommandHandler {
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCommands(Update update) {
-        String messageText = update.getMessage().getText();
+        return handleCommands(CommandData.from(update.getMessage()));
+    }
+
+    public PartialBotApiMethod<? extends Serializable> handleCommands(CommandData commandData){
+        String messageText = commandData.getCommand();
         String command = messageText.split(" ")[0];
-        long chatId = update.getMessage().getChatId();
-        log.info("Received a message from user {} from a chat with id:\"{}\", containing message \"{}\"", update.getMessage().getFrom().getUserName(), chatId, messageText);
+        long chatId = commandData.getChatId();
+        log.info("Received a message from user {} from a chat with id:\"{}\", containing message \"{}\"", commandData.getTelegramName(), chatId, messageText);
 
         if (command.startsWith("/")) {
             command = command.substring(1);
         }
         String finalCommand = command;
-        Command<? extends PartialBotApiMethod<?>> commandHandler = commands.keySet().stream()
-                .filter(keys -> keys.contains(finalCommand.toLowerCase()) || keys.contains(messageText.toLowerCase().replace(' ', '_')))
-                .findFirst()
-                .map(commands::get).orElse(null);
-        if (commandHandler != null && commandHandler.isManager(update.getMessage().getFrom().getId())) {
+        Command<? extends PartialBotApiMethod<?>> commandHandler = getCommand(finalCommand);
+        if (commandHandler != null && commandHandler.isManager(commandData.getTelegramId())) {
             log.info("Recognized command {}, starting handling", command);
-            return commandHandler.handle(update);
+            return commandHandler.handle(commandData);
         } else {
             return new SendMessage(String.valueOf(chatId), "Unknown command");
         }
@@ -112,9 +115,22 @@ public class CommandHandler {
                 .collect(Collectors.joining("\n\n"));
     }
 
+    public int getCommandArgumentLength(String[] command){
+        Command<? extends PartialBotApiMethod<?>> commandObj = getCommand(command[0].toLowerCase().replace(" ", "_"));
+        return commandObj != null ? commandObj.getRequiredArgumentsLength() : 0;
+    }
     public static List<Command> getCommands(Update update) {
         return commands.values().stream()
                 .filter(command -> command.isManager(update.getMessage().getFrom().getId()))
                 .collect(Collectors.toList());
+    }
+
+    @Nullable
+    private Command<? extends PartialBotApiMethod<?>> getCommand(String key){
+        return commands.keySet().stream()
+                .filter(keys->keys.contains(key.toLowerCase()) || keys.contains(key.toLowerCase().replace(" ", "_")))
+                .findFirst()
+                .map(commands::get)
+                .orElse(null);
     }
 }

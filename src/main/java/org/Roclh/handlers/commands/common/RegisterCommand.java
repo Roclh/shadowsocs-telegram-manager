@@ -5,9 +5,9 @@ import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.CommandData;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 
@@ -21,19 +21,19 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
     }
 
     @Override
-    public SendMessage handle(Update update) {
-        long chatId = update.getMessage().getChatId();
-        boolean isSaved = telegramUserService.saveUser(telegramUserService.getUser(update.getMessage().getFrom().getId())
+    public SendMessage handle(CommandData commandData) {
+        long chatId = commandData.getChatId();
+        boolean isSaved = telegramUserService.saveUser(telegramUserService.getUser(commandData.getTelegramId())
                 .map(user -> {
                     if (user.getRole().prior < Role.USER.prior) {
                         user.setRole(Role.USER);
                     }
                     return user;
                 }).orElse(TelegramUserModel.builder()
-                        .telegramId(update.getMessage().getFrom().getId())
+                        .telegramId(commandData.getTelegramId())
                         .role(Role.USER)
-                        .telegramName(update.getMessage().getFrom().getUserName())
-                        .chatId(update.getMessage().getChatId())
+                        .telegramName(commandData.getTelegramName())
+                        .chatId(commandData.getChatId())
                         .build()));
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
@@ -43,7 +43,7 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
                     .stream().filter(user -> user.getChatId() != null)
                     .forEach(user -> botStorage.getTelegramBot().sendMessage(SendMessage.builder()
                             .chatId(user.getChatId())
-                            .text("New user " + update.getMessage().getFrom().getUserName() + ":" + update.getMessage().getFrom().getId() + " was registred!")
+                            .text("New user " + commandData.getTelegramName() + ":" + commandData.getTelegramId() + " was registred!")
                             .build()));
         } else {
             sendMessage.setText("Already registered!");
@@ -51,10 +51,6 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
         return sendMessage;
     }
 
-    @Override
-    public String inlineName() {
-        return "Регистрация";
-    }
 
     @Override
     public boolean isManager(Long userId) {
@@ -68,6 +64,6 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public List<String> getCommandNames() {
-        return List.of("register", inlineName().toLowerCase());
+        return List.of("register");
     }
 }

@@ -4,6 +4,7 @@ import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.CommandData;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -19,8 +20,8 @@ public class ListManagerCommand extends AbstractCommand<SendMessage> {
     }
 
     @Override
-    public SendMessage handle(Update update) {
-        long chatId = update.getMessage().getChatId();
+    public SendMessage handle(CommandData commandData) {
+        long chatId = commandData.getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         List<TelegramUserModel> managers = telegramUserService.getUsers(user -> Role.MANAGER.equals(user.getRole()));
@@ -31,10 +32,6 @@ public class ListManagerCommand extends AbstractCommand<SendMessage> {
         return sendMessage;
     }
 
-    @Override
-    public String inlineName() {
-        return "Список менеджеров";
-    }
 
     @Override
     public String getHelp() {
@@ -43,6 +40,6 @@ public class ListManagerCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public List<String> getCommandNames() {
-        return List.of("listmanager", "listman", "manlist", "managerlist", inlineName().replace(' ', '_').toLowerCase());
+        return List.of("listmanager", "listman", "manlist", "managerlist");
     }
 }

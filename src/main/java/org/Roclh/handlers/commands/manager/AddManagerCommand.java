@@ -4,9 +4,9 @@ import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.CommandData;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 
@@ -19,14 +19,14 @@ public class AddManagerCommand extends AbstractCommand<SendMessage> {
 
 
     @Override
-    public SendMessage handle(Update update) {
-        String[] words = update.getMessage().getText().split(" ");
+    public SendMessage handle(CommandData commandData) {
+        String[] words = commandData.getCommand().split(" ");
         if (words.length < 3) {
-            return SendMessage.builder().chatId(update.getMessage().getChatId()).text("Failed to execute command - not enough arguments").build();
+            return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - not enough arguments").build();
         }
         String managerId = words[1];
         String managerUsername = words[2];
-        long chatId = update.getMessage().getChatId();
+        long chatId = commandData.getChatId();
         boolean wasAdded = telegramUserService.saveUser(telegramUserService.getUser(Long.parseLong(managerId))
                 .map(user -> {
                     user.setRole(Role.MANAGER);

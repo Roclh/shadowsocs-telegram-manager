@@ -3,10 +3,10 @@ package org.Roclh.handlers.commands.sh;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.sh.ScriptRunner;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 
@@ -26,8 +26,8 @@ public class ScreenListCommand extends AbstractCommand<SendMessage> {
     }
 
     @Override
-    public SendMessage handle(Update update) {
-        long chatId = update.getMessage().getChatId();
+    public SendMessage handle(CommandData commandData) {
+        long chatId = commandData.getChatId();
         SendMessage sendMessage = new SendMessage();
 
         sendMessage.setChatId(String.valueOf(chatId));
@@ -36,11 +36,6 @@ public class ScreenListCommand extends AbstractCommand<SendMessage> {
         }
         sendMessage.setText(executeShScript());
         return sendMessage;
-    }
-
-    @Override
-    public String inlineName() {
-        return "ScreenList";
     }
 
     @Override

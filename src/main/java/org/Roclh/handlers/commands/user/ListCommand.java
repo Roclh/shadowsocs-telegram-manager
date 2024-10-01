@@ -5,6 +5,7 @@ import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.CommandData;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -24,13 +25,13 @@ public class ListCommand extends AbstractCommand<SendMessage> {
     }
 
     @Override
-    public SendMessage handle(Update update) {
-        long chatId = update.getMessage().getChatId();
+    public SendMessage handle(CommandData commandData) {
+        long chatId = commandData.getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         List<UserModel> allUsers = userService.getAllUsers();
         sendMessage.setText(allUsers.size() + " added users:\n" +
-                allUsers.stream().map(u-> u.toString() + bandwidthService.getRule(u.getUserModel().getTelegramId()).map(r -> "," + r).orElse(""))
+                allUsers.stream().map(u -> u.toString() + bandwidthService.getRule(u.getUserModel().getTelegramId()).map(r -> "," + r).orElse(""))
                         .collect(Collectors.joining("\n")));
         return sendMessage;
     }
@@ -39,6 +40,7 @@ public class ListCommand extends AbstractCommand<SendMessage> {
     public String getHelp() {
         return getCommandNames().get(0) + "\n -- show list of added users";
     }
+
     @Override
     public List<String> getCommandNames() {
         return List.of("list", "l", "listusers");

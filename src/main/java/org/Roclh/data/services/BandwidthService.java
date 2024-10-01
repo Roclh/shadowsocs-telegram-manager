@@ -83,7 +83,7 @@ public class BandwidthService {
                     burst_rate=${3}
                                         
                     tc filter add dev eth0 parent 1: protocol ip basic match 'cmp(u16 at 0 layer transport eq '$port')' action police rate $bandwidth burst $burst_rate
-                    if [$(tc filter show dev eth0 | grep -o $port | wc -l}) -eq 0] then
+                    if [$(tc filter show dev eth0 | grep -o $port | wc -l}) -eq 0]; then
                         echo Failed to add bandwidth
                     else
                         echo Successfully added bandwidth $bandwidth for port $port with burst rate $burst_rate

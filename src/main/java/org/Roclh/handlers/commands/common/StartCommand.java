@@ -1,23 +1,24 @@
 package org.Roclh.handlers.commands.common;
 
+import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.CommandHandler;
+import org.Roclh.handlers.callbacks.CallbackData;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.Command;
+import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.utils.Consts;
+import org.Roclh.utils.JsonHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+@Slf4j
 @Component
 public class StartCommand extends AbstractCommand<SendMessage> {
 
@@ -26,19 +27,19 @@ public class StartCommand extends AbstractCommand<SendMessage> {
     }
 
     @Override
-    public SendMessage handle(Update update) {
-        long chatId = update.getMessage().getChatId();
+    public SendMessage handle(CommandData commandData) {
+        long chatId = commandData.getChatId();
         SendMessage sendMessage = new SendMessage();
         telegramUserService.saveUser(TelegramUserModel.builder()
-                .telegramId(update.getMessage().getFrom().getId())
-                .telegramName(update.getMessage().getFrom().getUserName())
+                .telegramId(commandData.getTelegramId())
+                .telegramName(commandData.getTelegramName())
                 .chatId(chatId)
                 .role(Role.GUEST)
                 .build());
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(Consts.HELLO_TELEGRAM_TEXT + "\n\nAvailable commands:\n" +
-                CommandHandler.getCommandNames(update.getMessage().getFrom().getId()));
-        sendMessage.setReplyMarkup(getInlineKeyboardButtons(update));
+                CommandHandler.getCommandNames(commandData.getTelegramId()));
+        sendMessage.setReplyMarkup(getInlineKeyboardButtons(commandData));
         return sendMessage;
     }
 
@@ -47,10 +48,6 @@ public class StartCommand extends AbstractCommand<SendMessage> {
         return true;
     }
 
-    @Override
-    public String inlineName() {
-        return "Помощь";
-    }
 
     @Override
     public String getHelp() {
@@ -59,20 +56,19 @@ public class StartCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public List<String> getCommandNames() {
-        return List.of("start", "help", "h", inlineName().toLowerCase());
+        return List.of("start", "help", "h");
     }
 
-    private ReplyKeyboardMarkup getInlineKeyboardButtons(Update update) {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-        for (Command command : CommandHandler.getCommands(update).stream().filter(command -> Objects.nonNull(command.inlineName())).toList()) {
-            KeyboardRow row = new KeyboardRow();
-            row.add(KeyboardButton.builder()
-                    .text(command.inlineName())
-                    .build());
-            keyboardRows.add(row);
-        }
-        keyboardMarkup.setResizeKeyboard(true);
+    private InlineKeyboardMarkup getInlineKeyboardButtons(CommandData commandData) {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
+        keyboardRows.add(List.of(InlineKeyboardButton.builder()
+                .text("Test")
+                .callbackData(JsonHandler.toJson(CallbackData.builder()
+                        .callbackCommand("test")
+                        .callbackData("It's working!")
+                        .build()
+                )).build()));
         keyboardMarkup.setKeyboard(keyboardRows);
         return keyboardMarkup;
     }
