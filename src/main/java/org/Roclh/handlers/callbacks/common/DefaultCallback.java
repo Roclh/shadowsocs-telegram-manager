@@ -2,7 +2,7 @@ package org.Roclh.handlers.callbacks.common;
 
 import lombok.RequiredArgsConstructor;
 import org.Roclh.handlers.CommandHandler;
-import org.Roclh.handlers.callbacks.Callback;
+import org.Roclh.handlers.callbacks.AbstractCallback;
 import org.Roclh.handlers.callbacks.CallbackData;
 import org.Roclh.handlers.commands.CommandData;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.io.Serializable;
 
 @Component
 @RequiredArgsConstructor
-public class DefaultCallback implements Callback<PartialBotApiMethod<? extends Serializable>> {
+public class DefaultCallback extends AbstractCallback<PartialBotApiMethod<? extends Serializable>> {
 
     private final CommandHandler commandHandler;
     @Override

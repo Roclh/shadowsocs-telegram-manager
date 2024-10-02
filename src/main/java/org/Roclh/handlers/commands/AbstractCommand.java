@@ -22,7 +22,8 @@ public abstract class AbstractCommand<T extends PartialBotApiMethod<? extends Se
     }
 
     @Override
-    public void setI18N(Locale locale) {
+    public Command<T> setI18N(Locale locale) {
         this.i18N = I18N.from(locale);
+        return this;
     }
 }

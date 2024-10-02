@@ -6,7 +6,7 @@ import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.CommandHandler;
-import org.Roclh.handlers.callbacks.Callback;
+import org.Roclh.handlers.callbacks.AbstractCallback;
 import org.Roclh.handlers.callbacks.CallbackData;
 import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.utils.InlineUtils;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TelegramUserCallback implements Callback<PartialBotApiMethod<? extends Serializable>> {
+public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<? extends Serializable>> {
     private final CommandHandler commandHandler;
     private final TelegramUserService telegramUserService;
 
@@ -37,14 +37,14 @@ public class TelegramUserCallback implements Callback<PartialBotApiMethod<? exte
         return switch (commandLength) {
             case 1 -> EditMessageText.builder()
                     .messageId(callbackData.getMessageId())
-                    .text("Select command")
+                    .text(i18N.get("callback.user.telegramuser.inline.button.select.command"))
                     .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectCommandMarkup(callbackData))
                     .build();
             case 2 -> handleOneArgumentCommand(callbackData);
             case 3 -> handleTwoArgumentCommand(callbackData);
             default ->
-                    SendMessage.builder().text("Failed to process inline navigation data").chatId(callbackData.getChatId()).build();
+                    SendMessage.builder().text(i18N.get("callback.default.navigation.data.error")).chatId(callbackData.getChatId()).build();
         };
     }
 
@@ -61,7 +61,7 @@ public class TelegramUserCallback implements Callback<PartialBotApiMethod<? exte
     @Override
     public List<InlineKeyboardButton> getCallbackButtonRow() {
         return List.of(InlineKeyboardButton.builder()
-                .text("Manage telegram users")
+                .text(i18N.get("callback.user.telegramuser.callback.button"))
                 .callbackData(getName())
                 .build());
     }
@@ -73,18 +73,18 @@ public class TelegramUserCallback implements Callback<PartialBotApiMethod<? exte
                     .messageId(callbackData.getMessageId())
                     .text(getSendMessageCommandResult(callbackData))
                     .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), "start"))
                     .build();
             case "deltg" -> EditMessageText.builder()
                     .messageId(callbackData.getMessageId())
-                    .text("Select telegram user id to delete")
+                    .text(i18N.get("callback.user.common.select.telegram.user"))
                     .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectTelegramUserIdMarkup(callbackData, user -> true))
                     .build();
             default -> SendMessage.builder()
                     .chatId(callbackData.getChatId())
-                    .text("Failed to parse one argument command")
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .text(i18N.get("callback.default.navigation.data.error.parse.one.argument"))
+                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), "start"))
                     .build();
         };
     }
@@ -96,12 +96,12 @@ public class TelegramUserCallback implements Callback<PartialBotApiMethod<? exte
                     .messageId(callbackData.getMessageId())
                     .text(getSendMessageCommandResult(callbackData))
                     .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), "start"))
                     .build();
             default -> SendMessage.builder()
                     .chatId(callbackData.getChatId())
-                    .text("Failed to parse two argument command")
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .text(i18N.get("callback.default.navigation.data.error.parse.two.argument"))
+                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), "start"))
                     .build();
         };
     }
@@ -109,10 +109,11 @@ public class TelegramUserCallback implements Callback<PartialBotApiMethod<? exte
 
     private InlineKeyboardMarkup getSelectCommandMarkup(CallbackData callbackData) {
         Map<String, String> map = new HashMap<>();
-        map.put("List of telegram users", "listtg");
-        map.put("Delete tg user", "deltg");
+        map.put(i18N.get("callback.user.telegramuser.inline.button.list.of.telegram.users"), "listtg");
+        map.put(i18N.get("callback.user.telegramuser.inline.button.delete.telegram.user"), "deltg");
         return InlineUtils.getListNavigationMarkup(map,
                 (data) -> callbackData.getCallbackData() + " " + data,
+                callbackData.getLocale(),
                 () -> "start"
         );
     }
@@ -126,6 +127,7 @@ public class TelegramUserCallback implements Callback<PartialBotApiMethod<? exte
                         .collect(Collectors.toMap(user -> user.getTelegramName() + ":" + user.getTelegramId(),
                                 user -> user.getTelegramId().toString())),
                 (data) -> callbackData.getCallbackData() + " " + data,
+                callbackData.getLocale(),
                 () -> callbackData.getCallbackData().substring(0, callbackData.getCallbackData().lastIndexOf(" "))
         );
     }

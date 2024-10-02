@@ -10,7 +10,7 @@ import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.CommandHandler;
-import org.Roclh.handlers.callbacks.Callback;
+import org.Roclh.handlers.callbacks.AbstractCallback;
 import org.Roclh.handlers.callbacks.CallbackData;
 import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.utils.InlineUtils;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class UserCallback implements Callback<PartialBotApiMethod<? extends Serializable>> {
+public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends Serializable>> {
 
     private final TelegramUserService telegramUserService;
     private final UserService userService;
@@ -196,6 +196,7 @@ public class UserCallback implements Callback<PartialBotApiMethod<? extends Seri
         }
         return InlineUtils.getListNavigationMarkup(map,
                 (data) -> callbackData.getCallbackData() + " " + data,
+                callbackData.getLocale(),
                 () -> "start"
         );
     }
@@ -204,6 +205,7 @@ public class UserCallback implements Callback<PartialBotApiMethod<? extends Seri
         return InlineUtils.getListNavigationMarkup(Arrays.stream(BandwidthModel.Bandwidth.values())
                         .collect(Collectors.toMap(BandwidthModel.Bandwidth::getBandwidth, BandwidthModel.Bandwidth::name)),
                 (data) -> callbackData.getCallbackData() + " " + data,
+                callbackData.getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())
         );
     }
@@ -215,6 +217,7 @@ public class UserCallback implements Callback<PartialBotApiMethod<? extends Seri
                         .collect(Collectors.toMap(user -> user.getUserModel().getTelegramName() + ":" + user.getUserModel().getTelegramId(),
                                 userModel -> userModel.getUserModel().getTelegramId().toString())),
                 (data) -> callbackData.getCallbackData() + " " + data,
+                callbackData.getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())
         );
     }
@@ -227,6 +230,7 @@ public class UserCallback implements Callback<PartialBotApiMethod<? extends Seri
                         .collect(Collectors.toMap(user -> user.getTelegramName() + ":" + user.getTelegramId(),
                                 user -> user.getTelegramId().toString())),
                 (data) -> callbackData.getCallbackData() + " " + data,
+                callbackData.getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())
         );
     }
@@ -235,6 +239,7 @@ public class UserCallback implements Callback<PartialBotApiMethod<? extends Seri
         return InlineUtils.getListNavigationMarkup(userService.getAvailablePorts(5)
                         .stream().collect(Collectors.toMap(port -> "Port " + port.toString(), Object::toString)),
                 (data) -> callbackData.getCallbackData() + " " + data,
+                callbackData.getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())
         );
     }

@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 
 public interface Callback<T extends PartialBotApiMethod<? extends Serializable>>{
     T apply(CallbackData callbackData);
@@ -18,6 +19,7 @@ public interface Callback<T extends PartialBotApiMethod<? extends Serializable>>
                 .build());
     }
 
+    Callback<T> setI18N(Locale locale);
     default boolean isAllowed(Long telegramId){
         return false;
     }

@@ -1,12 +1,14 @@
 package org.Roclh.utils;
 
 import lombok.NonNull;
+import org.Roclh.utils.i18n.I18N;
 import org.springframework.lang.Nullable;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -15,13 +17,15 @@ public class InlineUtils {
 
     @NonNull
     public static InlineKeyboardMarkup getListNavigationMarkup(Map<String, String> selectables,
-                                                               Function<String, String> callbackDataConsumer) {
-        return getListNavigationMarkup(selectables, callbackDataConsumer, () -> null);
+                                                               Function<String, String> callbackDataConsumer,
+                                                               Locale locale) {
+        return getListNavigationMarkup(selectables, callbackDataConsumer, locale, () -> null);
     }
 
     @NonNull
     public static InlineKeyboardMarkup getListNavigationMarkup(Map<String, String> selectables,
                                                                Function<String, String> callbackDataConsumer,
+                                                               Locale locale,
                                                                Supplier<String> redoCallbackSupplier) {
         InlineKeyboardMarkup.InlineKeyboardMarkupBuilder inlineKeyboardMarkupBuilder = InlineKeyboardMarkup.builder();
 
@@ -33,8 +37,9 @@ public class InlineUtils {
                     .build();
             inlineKeyboardButtons.add(List.of(inlineKeyboardButton));
         }
-        List<InlineKeyboardButton> lastRow = getDefaultRedoLastChangeCommandRow("Back", redoCallbackSupplier);
-        if(lastRow != null){
+        List<InlineKeyboardButton> lastRow = getDefaultRedoLastChangeCommandRow(I18N.from(locale)
+                .get("callback.default.navigation.data.back"), redoCallbackSupplier);
+        if (lastRow != null) {
             inlineKeyboardButtons.add(lastRow);
         }
         return inlineKeyboardMarkupBuilder.keyboard(inlineKeyboardButtons).build();

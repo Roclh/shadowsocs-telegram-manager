@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.handlers.commands.CommandData;
 import org.springframework.lang.Nullable;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Locale;
 
