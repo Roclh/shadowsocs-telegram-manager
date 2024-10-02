@@ -32,7 +32,7 @@ public class I18N {
             for (int i = 0; i < objects.length; i++) {
                 configurableString.replace("${" + i + "}", objects[i].toString());
             }
-            return new String(configurableString.getBytes(), Charset.forName("windows-1251"));
+            return configurableString;
         } catch (Exception e) {
             log.error("Failed to get resource from bundle with locale {} by key {}", locale, key, e);
             return key;
