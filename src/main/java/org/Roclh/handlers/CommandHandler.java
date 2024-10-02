@@ -34,6 +34,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -111,9 +112,10 @@ public class CommandHandler {
         }
     }
 
-    public static String getCommandNames(Long telegramId) {
+    public static String getCommandNames(Long telegramId, Locale locale) {
         return commands.values().stream()
                 .filter(command -> command.isManager(telegramId))
+                .map(command -> command.setI18N(locale))
                 .map(Command::getHelp)
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining("\n\n"));

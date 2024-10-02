@@ -38,15 +38,16 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         if (isSaved) {
-            sendMessage.setText("Successfully registered!");
+            sendMessage.setText(i18N.get("command.common.register.successfully.registred"));
             telegramUserService.getUsers(user -> user.getRole().prior >= Role.MANAGER.prior)
                     .stream().filter(user -> user.getChatId() != null)
                     .forEach(user -> botStorage.getTelegramBot().sendMessage(SendMessage.builder()
                             .chatId(user.getChatId())
-                            .text("New user " + commandData.getTelegramName() + ":" + commandData.getTelegramId() + " was registred!")
+                            .text(i18N.get("command.common.register.notify.managers.message",
+                                    commandData.getTelegramName(), commandData.getTelegramId()))
                             .build()));
         } else {
-            sendMessage.setText("Already registered!");
+            sendMessage.setText(i18N.get("command.common.register.already.registred"));
         }
         return sendMessage;
     }
@@ -59,7 +60,7 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public String getHelp() {
-        return getCommandNames().get(0) + "\n -- register for access to personal information";
+        return getCommandNames().get(0) + "\n" + i18N.get("command.common.register.help");
     }
 
     @Override

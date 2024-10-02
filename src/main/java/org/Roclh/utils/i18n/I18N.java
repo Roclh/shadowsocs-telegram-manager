@@ -2,7 +2,6 @@ package org.Roclh.utils.i18n;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -30,7 +29,7 @@ public class I18N {
                 }
             }
             for (int i = 0; i < objects.length; i++) {
-                configurableString.replace("${" + i + "}", objects[i].toString());
+                configurableString = configurableString.replace("${" + i + "}", objects[i].toString());
             }
             return configurableString;
         } catch (Exception e) {

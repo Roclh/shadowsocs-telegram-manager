@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,15 +49,17 @@ public class CallbackHandler {
         log.info("Existing keys: {}", callbacks.keySet());
 
         if (callbacks.containsKey(callbackData.getCallbackCommand())) {
-            return callbacks.get(callbackData.getCallbackCommand()).apply(callbackData);
+            return callbacks.get(callbackData.getCallbackCommand()).setI18N(callbackData.getLocale()).apply(callbackData);
         } else {
-            return callbacks.get(DEFAULT_CALLBACK_KEY).apply(callbackData);
+            return callbacks.get(DEFAULT_CALLBACK_KEY).setI18N(callbackData.getLocale()).apply(callbackData);
         }
     }
 
-    public static List<List<InlineKeyboardButton>> getAllowedCallbackButtons(Long telegramId){
+    public static List<List<InlineKeyboardButton>> getAllowedCallbackButtons(Long telegramId, Locale locale){
         return callbacks.values()
-                .stream().filter(callback -> callback.isAllowed(telegramId))
+                .stream()
+                .filter(callback -> callback.isAllowed(telegramId))
+                .map(callback -> callback.setI18N(locale))
                 .map(Callback::getCallbackButtonRow)
                 .collect(Collectors.toList());
     }

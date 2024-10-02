@@ -37,9 +37,7 @@ public class StartCommand extends AbstractCommand<SendMessage> {
                     .telegramName(commandData.getTelegramName())
                     .chatId(chatId)
                     .build());
-            sendMessage.setText("Hi! \n\n Nice to meet you! Welcome to PepegaVPN manager bot! To continue, " +
-                    "you need to confirm that you agree with terms and conditions by " +
-                    "pressing register button below!");
+            sendMessage.setText(i18N.get("command.common.start.welcome.message"));
             sendMessage.setReplyMarkup(getGuestKeyboardMarkup());
         }
         return sendMessage;
@@ -56,12 +54,12 @@ public class StartCommand extends AbstractCommand<SendMessage> {
     }
 
     public InlineKeyboardMarkup getGuestKeyboardMarkup() {
-        return InlineUtils.getDefaultNavigationMarkup("Register!", "register");
+        return InlineUtils.getDefaultNavigationMarkup(i18N.get("command.common.start.register.button"), "register");
     }
 
     private InlineKeyboardMarkup getInlineKeyboardButtons(CommandData commandData) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(commandData.getTelegramId()));
+        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(commandData.getTelegramId(), commandData.getLocale()));
         return keyboardMarkup;
     }
 }

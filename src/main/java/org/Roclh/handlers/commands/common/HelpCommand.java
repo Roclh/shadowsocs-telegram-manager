@@ -35,7 +35,7 @@ public class HelpCommand extends AbstractCommand<SendMessage> {
                 .build());
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(Consts.HELLO_TELEGRAM_TEXT + "\n\nAvailable commands:\n" +
-                CommandHandler.getCommandNames(commandData.getTelegramId()));
+                CommandHandler.getCommandNames(commandData.getTelegramId(), commandData.getLocale()));
         sendMessage.setReplyMarkup(getInlineKeyboardButtons(commandData));
         return sendMessage;
     }
@@ -58,7 +58,7 @@ public class HelpCommand extends AbstractCommand<SendMessage> {
 
     private InlineKeyboardMarkup getInlineKeyboardButtons(CommandData commandData) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(commandData.getTelegramId()));
+        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(commandData.getTelegramId(), commandData.getLocale()));
         return keyboardMarkup;
     }
 }
