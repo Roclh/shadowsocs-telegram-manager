@@ -7,6 +7,7 @@ import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.ss.ShadowsocksProperties;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -17,11 +18,13 @@ import java.util.List;
 public class AddUserCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
     private final TelegramUserService telegramUserService;
+    private final ShadowsocksProperties shadowsocksProperties;
 
-    public AddUserCommand(TelegramUserService telegramUserService, UserService userManager, TelegramUserService telegramUserService1) {
+    public AddUserCommand(TelegramUserService telegramUserService, UserService userManager, TelegramUserService telegramUserService1, ShadowsocksProperties shadowsocksProperties) {
         super(telegramUserService);
         this.userManager = userManager;
         this.telegramUserService = telegramUserService1;
+        this.shadowsocksProperties = shadowsocksProperties;
     }
 
     @Override
@@ -34,10 +37,15 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 
-
         Long telegramId = Long.valueOf(words[1]);
         Long port = Long.valueOf(words[2]);
         String password = words[3];
+
+        if (shadowsocksProperties.getPortRange().range().stream().filter(userManager::isPortInUse).toList().contains(port)) {
+            log.error("Failed to add user - port {} already in use!", port);
+            sendMessage.setText("Failed to add user - port " + port + " already in use!");
+            return sendMessage;
+        }
 
         TelegramUserModel telegramUserModel = telegramUserService.getUser(telegramId)
                 .orElse(null);

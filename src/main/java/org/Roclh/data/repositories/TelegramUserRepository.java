@@ -23,5 +23,7 @@ public interface TelegramUserRepository extends JpaRepository<TelegramUserModel,
     @Query("update TelegramUserModel t set t.role = ?1 where t.telegramId = ?2")
     int updateRoleByTelegramId(Role role, Long telegramId);
 
+    @Transactional
+    @Modifying
     long deleteByTelegramId(Long telegramId);
 }

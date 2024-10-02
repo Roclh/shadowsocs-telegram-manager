@@ -3,7 +3,7 @@ package org.Roclh.handlers.commands;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.Roclh.handlers.callbacks.CallbackData;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 @Data
@@ -17,6 +17,7 @@ public class CommandData {
     private Long telegramId;
     @NonNull
     private Long chatId;
+    private Integer messageId;
 
     @NonNull
     public static CommandData from(@NonNull Message message) {
@@ -25,16 +26,18 @@ public class CommandData {
                 .telegramName(message.getFrom().getUserName())
                 .telegramId(message.getFrom().getId())
                 .chatId(message.getChatId())
+                .messageId(message.getMessageId())
                 .build();
     }
 
     @NonNull
-    public static CommandData from(@NonNull CallbackQuery callbackQuery, @NonNull String command){
+    public static CommandData from(@NonNull CallbackData callbackData){
         return CommandData.builder()
-                .command(command)
-                .telegramId(callbackQuery.getFrom().getId())
-                .telegramName(callbackQuery.getFrom().getUserName())
-                .chatId(callbackQuery.getMessage().getChatId())
+                .command(callbackData.getCallbackData())
+                .telegramId(callbackData.getTelegramId())
+                .telegramName(callbackData.getTelegramName())
+                .chatId(callbackData.getChatId())
+                .messageId(callbackData.getMessageId())
                 .build();
     }
 }

@@ -11,10 +11,6 @@ public interface Command<T extends PartialBotApiMethod<? extends Serializable>> 
     default String getHelp() {
         return null;
     }
-
-    default int getRequiredArgumentsLength(){
-        return 1;
-    }
     List<String> getCommandNames();
 
     boolean isManager(Long userId);

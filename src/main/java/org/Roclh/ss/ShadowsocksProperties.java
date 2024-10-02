@@ -12,6 +12,9 @@ import org.springframework.core.annotation.Order;
 import javax.validation.constraints.NotBlank;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Configuration
 @Data
@@ -90,6 +93,10 @@ public class ShadowsocksProperties {
         private PortsRange(long leftRangeLimit, long rightRangeLimit){
             this.leftRangeLimit = leftRangeLimit;
             this.rightRangeLimit = rightRangeLimit;
+        }
+
+        public List<Long> range(){
+            return LongStream.range(leftRangeLimit, rightRangeLimit).boxed().collect(Collectors.toList());
         }
 
         public static PortsRange from(String port){
