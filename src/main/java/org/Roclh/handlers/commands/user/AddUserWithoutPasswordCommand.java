@@ -8,7 +8,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.ss.ShadowsocksProperties;
-import org.Roclh.utils.PasswordGenerator;
+import org.Roclh.utils.PasswordUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -52,7 +52,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
             sendMessage.setText("Failed to add user - Telegram user with id " + telegramId + " does not exists!");
             return sendMessage;
         }
-        String password = PasswordGenerator.md5(telegramUserModel.getTelegramName() + ":" + telegramUserModel.getTelegramId() + UUID.randomUUID())
+        String password = PasswordUtils.md5(telegramUserModel.getTelegramName() + ":" + telegramUserModel.getTelegramId() + UUID.randomUUID())
                 .orElseThrow();
         UserModel userModel = UserModel.builder()
                 .userModel(telegramUserModel)

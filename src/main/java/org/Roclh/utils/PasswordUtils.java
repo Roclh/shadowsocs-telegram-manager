@@ -11,9 +11,12 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 @Slf4j
-public class PasswordGenerator {
+public class PasswordUtils {
     private static final String usedSymbols = "0123456789abcdefghijklmnopqrstuvwxyz";
 
+    public static boolean validate(String password){
+        return true;
+    }
     public static Optional<String> md5(String password) {
         return Optional.ofNullable(DigestUtils.md5(StringUtils.getBytes(password, Charset.forName("windows-1251")))).map(bytes -> {
             ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);

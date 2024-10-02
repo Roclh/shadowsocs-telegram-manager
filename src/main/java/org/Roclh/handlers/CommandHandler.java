@@ -1,11 +1,12 @@
 package org.Roclh.handlers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.commands.Command;
 import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.handlers.commands.common.GetLinkCommand;
-import org.Roclh.handlers.commands.common.RegisterCommand;
 import org.Roclh.handlers.commands.common.HelpCommand;
+import org.Roclh.handlers.commands.common.RegisterCommand;
 import org.Roclh.handlers.commands.common.StartCommand;
 import org.Roclh.handlers.commands.manager.AddManagerCommand;
 import org.Roclh.handlers.commands.manager.DeleteManagerCommand;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 public class CommandHandler {
 
     private static final Map<List<String>, Command<? extends PartialBotApiMethod<?>>> commands = new HashMap<>();
+    private final LocalizationService localizationService;
 
     public CommandHandler(StartCommand startCommand,
                           HelpCommand helpCommand,
@@ -62,7 +64,8 @@ public class CommandHandler {
                           DeleteUserCommand deleteUserCommand,
                           LimitFlowCommand limitFlowCommand,
                           AddContractCommand addContractCommand,
-                          GetLinkCommand getLinkCommand) {
+                          GetLinkCommand getLinkCommand, LocalizationService localizationService) {
+        this.localizationService = localizationService;
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(helpCommand.getCommandNames(), helpCommand);
         commands.put(addManagerCommand.getCommandNames(), addManagerCommand);
@@ -85,10 +88,10 @@ public class CommandHandler {
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCommands(Update update) {
-        return handleCommands(CommandData.from(update.getMessage()));
+        return handleCommands(CommandData.from(update.getMessage(), localizationService.getOrCreate(update.getMessage().getFrom().getId())));
     }
 
-    public PartialBotApiMethod<? extends Serializable> handleCommands(CommandData commandData){
+    public PartialBotApiMethod<? extends Serializable> handleCommands(CommandData commandData) {
         String messageText = commandData.getCommand();
         String command = messageText.split(" ")[0];
         long chatId = commandData.getChatId();
@@ -101,6 +104,7 @@ public class CommandHandler {
         Command<? extends PartialBotApiMethod<?>> commandHandler = getCommand(finalCommand);
         if (commandHandler != null && commandHandler.isManager(commandData.getTelegramId())) {
             log.info("Recognized command {}, starting handling", command);
+            commandHandler.setI18N(commandData.getLocale());
             return commandHandler.handle(commandData);
         } else {
             return new SendMessage(String.valueOf(chatId), "Unknown command");
@@ -122,9 +126,9 @@ public class CommandHandler {
     }
 
     @Nullable
-    private Command<? extends PartialBotApiMethod<?>> getCommand(String key){
+    private Command<? extends PartialBotApiMethod<?>> getCommand(String key) {
         return commands.keySet().stream()
-                .filter(keys->keys.contains(key.toLowerCase()) || keys.contains(key.toLowerCase().replace(" ", "_")))
+                .filter(keys -> keys.contains(key.toLowerCase()) || keys.contains(key.toLowerCase().replace(" ", "_")))
                 .findFirst()
                 .map(commands::get)
                 .orElse(null);

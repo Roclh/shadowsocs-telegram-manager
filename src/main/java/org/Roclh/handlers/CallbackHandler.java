@@ -1,6 +1,7 @@
 package org.Roclh.handlers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.callbacks.Callback;
 import org.Roclh.handlers.callbacks.CallbackData;
 import org.Roclh.handlers.callbacks.common.DefaultCallback;
@@ -23,12 +24,14 @@ import java.util.stream.Collectors;
 public class CallbackHandler {
     private final String DEFAULT_CALLBACK_KEY;
     private static final Map<String, Callback<? extends PartialBotApiMethod<? extends Serializable>>> callbacks = new HashMap<>();
+    private final LocalizationService localizationService;
 
     public CallbackHandler(DefaultCallback defaultCallback,
                            TestInlineCallback inlineCallback,
                            UserCallback userCallback,
-                           TelegramUserCallback telegramUserCallback) {
+                           TelegramUserCallback telegramUserCallback, LocalizationService localizationService) {
         DEFAULT_CALLBACK_KEY = defaultCallback.getName();
+        this.localizationService = localizationService;
         callbacks.put(DEFAULT_CALLBACK_KEY, defaultCallback);
         callbacks.put(inlineCallback.getName(), inlineCallback);
         callbacks.put(userCallback.getName(), userCallback);
@@ -36,7 +39,7 @@ public class CallbackHandler {
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCallbacks(Update update) {
-        return handleCallbacks(CallbackData.from(update));
+        return handleCallbacks(CallbackData.from(update.getCallbackQuery(), localizationService.getOrCreate(update.getCallbackQuery().getFrom().getId())));
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCallbacks(CallbackData callbackData) {

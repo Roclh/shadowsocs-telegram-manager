@@ -4,6 +4,7 @@ import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 
 public interface Command<T extends PartialBotApiMethod<? extends Serializable>> {
     T handle(CommandData commandData);
@@ -14,4 +15,6 @@ public interface Command<T extends PartialBotApiMethod<? extends Serializable>> 
     List<String> getCommandNames();
 
     boolean isManager(Long userId);
+
+    void setI18N(Locale locale);
 }

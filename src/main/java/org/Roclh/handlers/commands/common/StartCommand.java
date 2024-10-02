@@ -4,15 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
+import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.utils.InlineUtils;
+import org.Roclh.utils.i18n.I18N;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -28,8 +28,8 @@ public class StartCommand extends AbstractCommand<SendMessage> {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         if (telegramUserService.exists(commandData.getTelegramId()) && telegramUserService.isAllowed(commandData.getTelegramId(), Role.USER)) {
-            sendMessage.setText("Welcome back! Select your next command");
-            sendMessage.setReplyMarkup(getInlineKeyboardButtons());
+            sendMessage.setText(i18N.get("command.common.start.select.command"));
+            sendMessage.setReplyMarkup(getInlineKeyboardButtons(commandData));
         } else {
             telegramUserService.saveUser(TelegramUserModel.builder()
                     .role(Role.GUEST)
@@ -59,17 +59,9 @@ public class StartCommand extends AbstractCommand<SendMessage> {
         return InlineUtils.getDefaultNavigationMarkup("Register!", "register");
     }
 
-    private InlineKeyboardMarkup getInlineKeyboardButtons() {
+    private InlineKeyboardMarkup getInlineKeyboardButtons(CommandData commandData) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
-        keyboardRows.add(List.of(InlineKeyboardButton.builder()
-                .text("Test")
-                .callbackData("test It's working!").build()));
-        keyboardRows.add(List.of(InlineKeyboardButton.builder()
-                .text("Manage users")
-                .callbackData("user")
-                .build()));
-        keyboardMarkup.setKeyboard(keyboardRows);
+        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(commandData.getTelegramId()));
         return keyboardMarkup;
     }
 }
