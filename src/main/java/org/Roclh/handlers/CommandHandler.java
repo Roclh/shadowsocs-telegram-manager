@@ -5,6 +5,7 @@ import org.Roclh.handlers.commands.Command;
 import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.handlers.commands.common.GetLinkCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
+import org.Roclh.handlers.commands.common.HelpCommand;
 import org.Roclh.handlers.commands.common.StartCommand;
 import org.Roclh.handlers.commands.manager.AddManagerCommand;
 import org.Roclh.handlers.commands.manager.DeleteManagerCommand;
@@ -44,6 +45,7 @@ public class CommandHandler {
     private static final Map<List<String>, Command<? extends PartialBotApiMethod<?>>> commands = new HashMap<>();
 
     public CommandHandler(StartCommand startCommand,
+                          HelpCommand helpCommand,
                           AddManagerCommand addManagerCommand,
                           DeleteManagerCommand deleteManagerCommand,
                           ListManagerCommand listManagerCommand,
@@ -62,6 +64,7 @@ public class CommandHandler {
                           AddContractCommand addContractCommand,
                           GetLinkCommand getLinkCommand) {
         commands.put(startCommand.getCommandNames(), startCommand);
+        commands.put(helpCommand.getCommandNames(), helpCommand);
         commands.put(addManagerCommand.getCommandNames(), addManagerCommand);
         commands.put(deleteManagerCommand.getCommandNames(), deleteManagerCommand);
         commands.put(listManagerCommand.getCommandNames(), listManagerCommand);
@@ -112,10 +115,6 @@ public class CommandHandler {
                 .collect(Collectors.joining("\n\n"));
     }
 
-    public int getCommandArgumentLength(String[] command){
-        Command<? extends PartialBotApiMethod<?>> commandObj = getCommand(command[0].toLowerCase().replace(" ", "_"));
-        return commandObj != null ? commandObj.getRequiredArgumentsLength() : 0;
-    }
     public static List<Command> getCommands(Update update) {
         return commands.values().stream()
                 .filter(command -> command.isManager(update.getMessage().getFrom().getId()))

@@ -41,4 +41,8 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
     int updateIsAddedByUserModel_TelegramId(boolean isAdded, Long telegramId);
 
     boolean existsByUserModel_TelegramId(Long telegramId);
+
+    UserModel findByUsedPort(Long usedPort);
+
+    UserModel findByUserModel(TelegramUserModel userModel);
 }

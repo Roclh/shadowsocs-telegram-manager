@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.telegramUser;
 
+import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.CommandData;
@@ -11,8 +12,10 @@ import java.util.List;
 @Component
 public class DeleteTelegramUserCommand extends AbstractCommand<SendMessage> {
 
-    public DeleteTelegramUserCommand(TelegramUserService telegramUserService) {
+    private final TelegramBotProperties telegramBotProperties;
+    public DeleteTelegramUserCommand(TelegramUserService telegramUserService, TelegramBotProperties telegramBotProperties) {
         super(telegramUserService);
+        this.telegramBotProperties = telegramBotProperties;
     }
 
     @Override
@@ -23,9 +26,13 @@ public class DeleteTelegramUserCommand extends AbstractCommand<SendMessage> {
         }
         Long id = Long.valueOf(words[1]);
 
-        long chatId =commandData.getChatId();
+        long chatId = commandData.getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
+        if(telegramBotProperties.getDefaultManagerId().equals(id)){
+            sendMessage.setText("Can't delete default manager");
+            return sendMessage;
+        }
         if (telegramUserService.deleteUser(id)) {
             sendMessage.setText("Telegram user with identifier " + id + " was deleted successfully!");
         } else {
