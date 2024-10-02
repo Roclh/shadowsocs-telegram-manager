@@ -1,9 +1,12 @@
 package org.Roclh.bot;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.CommandHandler;
+import org.Roclh.handlers.commands.CommandData;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -14,16 +17,20 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
-
+    private static final Map<Long, Function<CommandData, PartialBotApiMethod<? extends Serializable>>> waitingForInput = new HashMap<>();
     private final TelegramBotProperties telegramBotProperties;
+    private final LocalizationService localizationService;
     private final CallbackHandler callbackHandler;
     private final CommandHandler commandsHandler;
 
@@ -39,9 +46,16 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
-            log.info("Received message {}", ("[id:\"" + update.getMessage().getFrom().getId() + "\"];" +
+            Long telegramId = update.getMessage().getFrom().getId();
+            log.info("Received message {}", ("[id:\"" + telegramId + "\"];" +
                     "[username:\"" + update.getMessage().getFrom().getUserName() + "\"];" +
                     "[text:\"" + update.getMessage().getText() + "\"]"));
+            if (waitingForInput.containsKey(telegramId)) {
+                Function<CommandData, PartialBotApiMethod<?>> asyncFunction = waitingForInput.get(telegramId);
+                waitingForInput.remove(telegramId);
+                sendMessage(asyncFunction.apply(CommandData.from(update.getMessage(), localizationService.getOrCreate(telegramId))));
+                return;
+            }
             if (update.getMessage().hasText()) {
                 sendMessage(commandsHandler.handleCommands(update));
             }
@@ -50,6 +64,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    public static void waitSyncUpdate(@NonNull Long telegramId, @NonNull Function<CommandData, PartialBotApiMethod<? extends Serializable>> onUpdate){
+        waitingForInput.put(telegramId, onUpdate);
+    }
     public <T extends Serializable> void sendMessage(PartialBotApiMethod<T> sendMessage) {
         log.info("Trying to send message to telegram client {}", sendMessage);
         if (sendMessage == null) {

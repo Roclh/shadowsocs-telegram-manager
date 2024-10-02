@@ -37,10 +37,9 @@ public class TelegramUserModel {
     private String telegramName;
     @Nullable
     private Long chatId;
-
     @Override
     public String toString() {
-        return "[" + telegramId + ":'" + telegramName + "']: " +
+        return "[" + telegramId + ":'" + telegramName + " - " + role.name() + "']: " +
                 " chatId='" + chatId + '\'';
     }
 

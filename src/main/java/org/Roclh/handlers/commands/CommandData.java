@@ -6,6 +6,8 @@ import lombok.NonNull;
 import org.Roclh.handlers.callbacks.CallbackData;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.util.Locale;
+
 @Data
 @Builder
 public class CommandData {
@@ -18,15 +20,18 @@ public class CommandData {
     @NonNull
     private Long chatId;
     private Integer messageId;
+    @NonNull
+    private Locale locale;
 
     @NonNull
-    public static CommandData from(@NonNull Message message) {
+    public static CommandData from(@NonNull Message message, Locale locale) {
         return builder()
                 .command(message.getText())
                 .telegramName(message.getFrom().getUserName())
                 .telegramId(message.getFrom().getId())
                 .chatId(message.getChatId())
                 .messageId(message.getMessageId())
+                .locale(locale)
                 .build();
     }
 
@@ -38,6 +43,7 @@ public class CommandData {
                 .telegramName(callbackData.getTelegramName())
                 .chatId(callbackData.getChatId())
                 .messageId(callbackData.getMessageId())
+                .locale(callbackData.getLocale())
                 .build();
     }
 }

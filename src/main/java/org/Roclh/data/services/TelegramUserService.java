@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.repositories.TelegramUserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +49,12 @@ public class TelegramUserService {
     }
 
     public boolean deleteUser(Long telegramId){
-        return telegramUserRepository.deleteByTelegramId(telegramId) > 0;
+        try{
+            return telegramUserRepository.deleteByTelegramId(telegramId) > 0;
+        }catch (DataIntegrityViolationException e){
+            log.error("Failed to delete user with id {}", telegramId, e);
+            return false;
+        }
     }
 
     public List<TelegramUserModel> getUsers(Predicate<TelegramUserModel> filter) {
