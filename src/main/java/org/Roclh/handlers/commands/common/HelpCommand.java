@@ -8,7 +8,6 @@ import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.CommandData;
-import org.Roclh.utils.Consts;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -27,14 +26,16 @@ public class HelpCommand extends AbstractCommand<SendMessage> {
     public SendMessage handle(CommandData commandData) {
         long chatId = commandData.getChatId();
         SendMessage sendMessage = new SendMessage();
-        telegramUserService.saveUser(TelegramUserModel.builder()
-                .telegramId(commandData.getTelegramId())
-                .telegramName(commandData.getTelegramName())
-                .chatId(chatId)
-                .role(Role.GUEST)
-                .build());
+        if(!telegramUserService.exists(commandData.getTelegramId())){
+            telegramUserService.saveUser(TelegramUserModel.builder()
+                    .telegramId(commandData.getTelegramId())
+                    .telegramName(commandData.getTelegramName())
+                    .chatId(chatId)
+                    .role(Role.GUEST)
+                    .build());
+        }
         sendMessage.setChatId(String.valueOf(chatId));
-        sendMessage.setText(Consts.HELLO_TELEGRAM_TEXT + "\n\nAvailable commands:\n" +
+        sendMessage.setText(i18N.get("command.common.help.text") +
                 CommandHandler.getCommandNames(commandData.getTelegramId(), commandData.getLocale()));
         sendMessage.setReplyMarkup(getInlineKeyboardButtons(commandData));
         return sendMessage;
@@ -42,7 +43,7 @@ public class HelpCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public boolean isManager(Long userId) {
-        return true;
+        return telegramUserService.isAllowed(userId, Role.USER);
     }
 
 

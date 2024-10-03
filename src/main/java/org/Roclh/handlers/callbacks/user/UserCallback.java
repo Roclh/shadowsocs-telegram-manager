@@ -95,7 +95,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                     .messageId(callbackData.getMessageId())
                     .text(getSendMessageCommandResult(callbackData))
                     .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
                     .build();
             case "addnopwd", "add" -> EditMessageText.builder()
                     .messageId(callbackData.getMessageId())
@@ -112,7 +112,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
             default -> SendMessage.builder()
                     .chatId(callbackData.getChatId())
                     .text("Failed to parse one argument command")
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
                     .build();
         };
     }
@@ -130,12 +130,12 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                     .messageId(callbackData.getMessageId())
                     .text(getSendMessageCommandResult(callbackData))
                     .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
                     .build();
             default -> SendMessage.builder()
                     .chatId(callbackData.getChatId())
                     .text("Failed to parse two argument command")
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
                     .build();
         };
     }
@@ -147,7 +147,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                     .messageId(callbackData.getMessageId())
                     .text(getSendMessageCommandResult(callbackData))
                     .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
                     .build();
             case "add" -> {
                 TelegramBot.waitSyncUpdate(callbackData.getTelegramId(), (commandData) -> {
@@ -156,13 +156,13 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                         return SendMessage.builder()
                                 .text(getSendMessageCommandResult(callbackData))
                                 .chatId(callbackData.getChatId())
-                                .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
                                 .build();
                     } else {
                         return SendMessage.builder()
                                 .text("Failed to validate password")
                                 .chatId(callbackData.getChatId())
-                                .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", callbackData.getCallbackData()))
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
                                 .build();
                     }
                 });
@@ -176,7 +176,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
             default -> SendMessage.builder()
                     .chatId(callbackData.getChatId())
                     .text("Failed to parse two argument command")
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", "start"))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
                     .build();
         };
 

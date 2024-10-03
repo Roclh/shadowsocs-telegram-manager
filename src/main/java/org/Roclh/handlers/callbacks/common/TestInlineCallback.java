@@ -1,7 +1,7 @@
 package org.Roclh.handlers.callbacks.common;
 
 import lombok.RequiredArgsConstructor;
-import org.Roclh.data.Role;
+//import org.Roclh.data.Role;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.callbacks.AbstractCallback;
 import org.Roclh.handlers.callbacks.CallbackData;
@@ -35,10 +35,10 @@ public class TestInlineCallback extends AbstractCallback<PartialBotApiMethod<? e
                 .build());
     }
 
-    @Override
-    public boolean isAllowed(Long telegramId) {
-        return telegramUserService.isAllowed(telegramId, Role.MANAGER);
-    }
+//    @Override
+//    public boolean isAllowed(Long telegramId) {
+//        return telegramUserService.isAllowed(telegramId, Role.MANAGER);
+//    }
 
     @Override
     public String getName() {

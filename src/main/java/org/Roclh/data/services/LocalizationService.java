@@ -16,15 +16,22 @@ public class LocalizationService {
     private final TelegramBotProperties telegramBotProperties;
 
     @NonNull
-    public Locale getOrCreate(@NonNull Long telegramId){
-        if(localizationRepository.existsById(telegramId)){
+    public Locale getOrCreate(@NonNull Long telegramId) {
+        if (localizationRepository.existsById(telegramId)) {
             return localizationRepository.findById(telegramId).map(LocalizationModel::getLocale).map(Locale::forLanguageTag).orElse(Locale.forLanguageTag(telegramBotProperties.getDefaultLocale()));
-        }else {
+        } else {
             LocalizationModel localizationModel = LocalizationModel.builder()
                     .telegramId(telegramId)
                     .locale(telegramBotProperties.getDefaultLocale())
                     .build();
             return Locale.forLanguageTag(localizationRepository.saveAndFlush(localizationModel).getLocale());
         }
+    }
+
+    public boolean setLocale(@NonNull Long telegramId, String locale) {
+        if (localizationRepository.existsById(telegramId)) {
+            return localizationRepository.updateLocaleByTelegramId(locale, telegramId) > 0;
+        }
+        return false;
     }
 }

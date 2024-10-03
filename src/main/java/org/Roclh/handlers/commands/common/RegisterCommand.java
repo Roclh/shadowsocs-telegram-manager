@@ -2,10 +2,10 @@ package org.Roclh.handlers.commands.common;
 
 import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.Role;
-import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.utils.InlineUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -29,25 +29,23 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
                         user.setRole(Role.USER);
                     }
                     return user;
-                }).orElse(TelegramUserModel.builder()
-                        .telegramId(commandData.getTelegramId())
-                        .role(Role.USER)
-                        .telegramName(commandData.getTelegramName())
-                        .chatId(commandData.getChatId())
-                        .build()));
+                }).orElse(null));
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         if (isSaved) {
             sendMessage.setText(i18N.get("command.common.register.successfully.registred"));
+            sendMessage.setReplyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("command.common.register.manage.button"), "start"));
             telegramUserService.getUsers(user -> user.getRole().prior >= Role.MANAGER.prior)
                     .stream().filter(user -> user.getChatId() != null)
                     .forEach(user -> botStorage.getTelegramBot().sendMessage(SendMessage.builder()
                             .chatId(user.getChatId())
                             .text(i18N.get("command.common.register.notify.managers.message",
                                     commandData.getTelegramName(), commandData.getTelegramId()))
+                            .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("command.common.register.start.managment.button"), "start"))
                             .build()));
         } else {
             sendMessage.setText(i18N.get("command.common.register.already.registred"));
+            sendMessage.setReplyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("command.common.register.manage.button"), "start"));
         }
         return sendMessage;
     }
