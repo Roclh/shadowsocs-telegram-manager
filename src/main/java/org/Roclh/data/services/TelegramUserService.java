@@ -8,7 +8,6 @@ import org.Roclh.data.repositories.TelegramUserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,9 +28,7 @@ public class TelegramUserService {
             telegramUserRepository.saveAndFlush(getUser(userModel.getTelegramId())
                     .map(user -> {
                         user.setTelegramId(userModel.getTelegramId());
-                        if(userModel.getRole().prior > user.getRole().prior){
-                            user.setRole(userModel.getRole());
-                        }
+                        user.setRole(userModel.getRole());
                         if (userModel.getTelegramName() != null) {
                             user.setTelegramName(userModel.getTelegramName());
                         }

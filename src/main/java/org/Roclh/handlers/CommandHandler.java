@@ -8,11 +8,6 @@ import org.Roclh.handlers.commands.common.GetLinkCommand;
 import org.Roclh.handlers.commands.common.HelpCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
 import org.Roclh.handlers.commands.common.StartCommand;
-import org.Roclh.handlers.commands.manager.AddManagerCommand;
-import org.Roclh.handlers.commands.manager.DeleteManagerCommand;
-import org.Roclh.handlers.commands.manager.ExportCsvCommand;
-import org.Roclh.handlers.commands.manager.ListManagerCommand;
-import org.Roclh.handlers.commands.sh.EchoCommand;
 import org.Roclh.handlers.commands.sh.ScreenListCommand;
 import org.Roclh.handlers.commands.telegramUser.DeleteTelegramUserCommand;
 import org.Roclh.handlers.commands.telegramUser.ListTelegramUserCommand;
@@ -50,14 +45,10 @@ public class CommandHandler {
 
     public CommandHandler(StartCommand startCommand,
                           HelpCommand helpCommand,
-                          AddManagerCommand addManagerCommand,
-                          DeleteManagerCommand deleteManagerCommand,
-                          ListManagerCommand listManagerCommand,
                           RegisterCommand registerCommand,
                           ListTelegramUserCommand listTelegramUserCommand,
                           ListCommand listCommand,
                           AddUserWithoutPasswordCommand addUserWithoutPasswordCommand,
-                          EchoCommand echoCommand,
                           AddUserCommand addUserCommand,
                           ChangeUserPasswordCommand changeUserPasswordCommand,
                           ChangeUserEnabledCommand changeUserEnabledCommand,
@@ -66,19 +57,17 @@ public class CommandHandler {
                           DeleteUserCommand deleteUserCommand,
                           LimitFlowCommand limitFlowCommand,
                           AddContractCommand addContractCommand,
+                          SetRoleCommand setRoleCommand,
+                          SelectLangCommand selectLangCommand,
+                          LocalizationService localizationService,
                           GetLinkCommand getLinkCommand,
-                          ExportCsvCommand exportCsvCommand,
-                          LocalizationService localizationService) {
+                          ExportCsvCommand exportCsvCommand) {
         this.localizationService = localizationService;
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(helpCommand.getCommandNames(), helpCommand);
-        commands.put(addManagerCommand.getCommandNames(), addManagerCommand);
-        commands.put(deleteManagerCommand.getCommandNames(), deleteManagerCommand);
-        commands.put(listManagerCommand.getCommandNames(), listManagerCommand);
         commands.put(registerCommand.getCommandNames(), registerCommand);
         commands.put(addUserWithoutPasswordCommand.getCommandNames(), addUserWithoutPasswordCommand);
         commands.put(listTelegramUserCommand.getCommandNames(), listTelegramUserCommand);
-        commands.put(echoCommand.getCommandNames(), echoCommand);
         commands.put(addUserCommand.getCommandNames(), addUserCommand);
         commands.put(changeUserPasswordCommand.getCommandNames(), changeUserPasswordCommand);
         commands.put(changeUserEnabledCommand.getCommandNames(), changeUserEnabledCommand);
@@ -90,6 +79,8 @@ public class CommandHandler {
         commands.put(exportCsvCommand.getCommandNames(), exportCsvCommand);
         commands.put(addContractCommand.getCommandNames(), addContractCommand);
         commands.put(getLinkCommand.getCommandNames(), getLinkCommand);
+        commands.put(setRoleCommand.getCommandNames(), setRoleCommand);
+        commands.put(selectLangCommand.getCommandNames(), selectLangCommand);
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCommands(Update update) {

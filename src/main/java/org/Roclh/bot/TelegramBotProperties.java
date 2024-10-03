@@ -1,8 +1,8 @@
 package org.Roclh.bot;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.Delimiter;
 import org.springframework.context.annotation.Configuration;
 
 import javax.validation.constraints.NotBlank;
@@ -21,7 +21,7 @@ public class TelegramBotProperties {
     @NotBlank
     private Long defaultManagerId;
     @NotBlank
-    @Value("#{'${telegram.supported-locales}'.split(';')}")
+    @Delimiter(";")
     private List<String> supportedLocales;
     @NotBlank
     private String defaultLocale;

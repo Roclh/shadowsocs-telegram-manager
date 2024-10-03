@@ -5,6 +5,10 @@ import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.callbacks.Callback;
 import org.Roclh.handlers.callbacks.CallbackData;
 import org.Roclh.handlers.callbacks.common.DefaultCallback;
+import org.Roclh.handlers.callbacks.common.GetQrCallback;
+import org.Roclh.handlers.callbacks.common.HelpCallback;
+import org.Roclh.handlers.callbacks.common.SelectLangCallback;
+import org.Roclh.handlers.callbacks.common.StartCallback;
 import org.Roclh.handlers.callbacks.common.TestInlineCallback;
 import org.Roclh.handlers.callbacks.user.TelegramUserCallback;
 import org.Roclh.handlers.callbacks.user.UserCallback;
@@ -28,15 +32,24 @@ public class CallbackHandler {
     private final LocalizationService localizationService;
 
     public CallbackHandler(DefaultCallback defaultCallback,
+                           StartCallback startCallback,
                            TestInlineCallback inlineCallback,
                            UserCallback userCallback,
-                           TelegramUserCallback telegramUserCallback, LocalizationService localizationService) {
+                           HelpCallback helpCallback,
+                           TelegramUserCallback telegramUserCallback,
+                           GetQrCallback getQrCallback,
+                           SelectLangCallback selectLangCallback,
+                           LocalizationService localizationService) {
         DEFAULT_CALLBACK_KEY = defaultCallback.getName();
         this.localizationService = localizationService;
         callbacks.put(DEFAULT_CALLBACK_KEY, defaultCallback);
+        callbacks.put(startCallback.getName(), startCallback);
         callbacks.put(inlineCallback.getName(), inlineCallback);
         callbacks.put(userCallback.getName(), userCallback);
         callbacks.put(telegramUserCallback.getName(), telegramUserCallback);
+        callbacks.put(helpCallback.getName(), helpCallback);
+        callbacks.put(getQrCallback.getName(), getQrCallback);
+        callbacks.put(selectLangCallback.getName(), selectLangCallback);
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCallbacks(Update update) {

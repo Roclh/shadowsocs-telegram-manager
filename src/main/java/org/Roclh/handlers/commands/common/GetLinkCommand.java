@@ -27,6 +27,7 @@ import java.util.List;
 public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extends Serializable>> {
     private final ServerSharingService serverSharingService;
     private final UserService userService;
+
     public GetLinkCommand(TelegramUserService telegramUserService, ServerSharingService serverSharingService, UserService userService) {
         super(telegramUserService);
         this.serverSharingService = serverSharingService;
@@ -43,21 +44,21 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
 
 
         UserModel userModel = userService.getUser(telegramId).orElse(null);
-        if(userModel == null || !userModel.isAdded()){
+        if (userModel == null || !userModel.isAdded()) {
             log.error("Failed to generate link - user with id {} not exists or is not added", telegramId);
-            sendMessage.setText("Failed to generate link - user with id " + telegramId + " not exists or is not added");
+            sendMessage.setText(i18N.get("command.common.getlink.validation.failed.not.exists", telegramId));
             return sendMessage;
         }
         String uri = serverSharingService.generateServerUrl(userModel);
-        if(uri == null){
+        if (uri == null) {
             log.error("Failed to generate link - failed to generate server url");
-            sendMessage.setText("Failed to generate link - failed to generate server url");
+            sendMessage.setText(i18N.get("command.common.getlink.validation.failed.generate.url"));
             return sendMessage;
         }
         BufferedImage qrCode = serverSharingService.generateServerUrlQrCode(userModel);
-        if(qrCode == null){
+        if (qrCode == null) {
             log.error("Failed to generate link - failed to generate server QR code");
-            sendMessage.setText("Failed to generate link - failed to generate server QR code");
+            sendMessage.setText(i18N.get("command.common.getlink.validation.failed.generate.qr"));
             return sendMessage;
         }
         sendPhoto.setCaption(uri);
@@ -66,7 +67,7 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
             ImageIO.write(qrCode, "jpeg", os);
         } catch (IOException e) {
             log.error("Failed to generate link - failed to parse qr code to output stream", e);
-            sendMessage.setText("Failed to generate link - failed to parse qr code to output stream");
+            sendMessage.setText(i18N.get("command.common.getlink.validation.failed.parse.qr"));
             return sendMessage;
         }
         sendPhoto.setPhoto(new InputFile().setMedia(new ByteArrayInputStream(os.toByteArray()), "QR.jpeg"));
@@ -81,7 +82,7 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
 
     @Override
     public String getHelp() {
-        return getCommandNames().get(0) + "\n -- get qr to access server";
+        return getCommandNames().get(0) + "\n" + i18N.get("command.common.getlink.help");
     }
 
     @Override
