@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -64,9 +65,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    public static void waitSyncUpdate(@NonNull Long telegramId, @NonNull Function<CommandData, PartialBotApiMethod<? extends Serializable>> onUpdate){
+    public static void waitSyncUpdate(@NonNull Long telegramId, @NonNull Function<CommandData, PartialBotApiMethod<? extends Serializable>> onUpdate) {
         waitingForInput.put(telegramId, onUpdate);
     }
+
     public <T extends Serializable> void sendMessage(PartialBotApiMethod<T> sendMessage) {
         log.info("Trying to send message to telegram client {}", sendMessage);
         if (sendMessage == null) {
@@ -79,6 +81,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                 execute((SendMediaGroup) sendMessage);
             } else if (sendMessage instanceof SendPhoto) {
                 execute((SendPhoto) sendMessage);
+            } else if (sendMessage instanceof SendDocument) {
+                execute((SendDocument) sendMessage);
             }
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
