@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -56,11 +57,11 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
 
     @Override
     public PartialBotApiMethod<? extends Serializable> handle(CommandData commandData) {
-        log.info("csv command was requested");
+        log.info("CSV command was requested");
         String[] command = commandData.getCommand().split(" ");
         if (command.length != 2) {
             return SendMessage.builder().chatId(commandData.getChatId())
-                    .text(i18N.get("command.manager.export.csv.not.enough.argument")).build();
+                    .text(i18N.get("common.validation.not.enough.argument", 2)).build();
         }
         String fileType = command[1];
         FileDataTypes dataTypes;
@@ -69,42 +70,84 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
         } catch (IllegalArgumentException e) {
             log.error("Invalid file type {}", fileType, e);
             return SendMessage.builder().chatId(commandData.getChatId())
-                    .text("wrong argument").build();
+                    .text(i18N.get("command.manager.export.csv.wrong.argument")).build();
         }
         return switch (dataTypes) {
-            case USER ->
-                SendDocument.builder()
+            case USER ->{
+                File file = userModelToCsv(userService.getAllUsers());
+                if (file != null){
+                    yield SendDocument.builder()
+                            .chatId(commandData.getChatId())
+                            .document(new InputFile(file))
+                            .build();
+                }
+                yield SendMessage.builder()
                         .chatId(commandData.getChatId())
-                        .document(new InputFile(userModelToCsv(userService.getAllUsers())))
+                        .text(i18N.get("command.manager.export.csv.cant.create.file"))
                         .build();
-            case BANDWIDTH ->
-                SendDocument.builder()
+            }
+
+            case BANDWIDTH -> {
+                File file = bandwidthUserModelToCsv(bandwidthService.getAll());
+                if (file != null){
+                    yield SendDocument.builder()
+                            .chatId(commandData.getChatId())
+                            .document(new InputFile(file))
+                            .build();
+                }
+                yield SendMessage.builder()
                         .chatId(commandData.getChatId())
-                        .document(new InputFile(bandwidthUserModelToCsv(bandwidthService.getAll())))
+                        .text(i18N.get("command.manager.export.csv.cant.create.file"))
                         .build();
-            case CONTRACT ->
-                SendDocument.builder()
+            }
+            case CONTRACT -> {
+                File file = contractModelToCsv(contractService.getAllContracts());
+                if (file != null){
+                    yield SendDocument.builder()
+                            .chatId(commandData.getChatId())
+                            .document(new InputFile(file))
+                            .build();
+                }
+                yield SendMessage.builder()
                         .chatId(commandData.getChatId())
-                        .document(new InputFile(contractModelToCsv(contractService.getAllContracts())))
+                        .text(i18N.get("command.manager.export.csv.cant.create.file"))
                         .build();
-            case TGUSER ->
-                SendDocument.builder()
+            }
+            case TGUSER -> {
+                File file = telegramUserModelToCsv(telegramUserService.getUsers());
+                if (file != null){
+                    yield SendDocument.builder()
+                            .chatId(commandData.getChatId())
+                            .document(new InputFile(file))
+                            .build();
+                }
+                yield SendMessage.builder()
                         .chatId(commandData.getChatId())
-                        .document(new InputFile(telegramUserModelToCsv(telegramUserService.getUsers())))
+                        .text(i18N.get("command.manager.export.csv.cant.create.file"))
                         .build();
+            }
             case ALL -> {
                 List<File> attachments = new ArrayList<>();
                 attachments.add(userModelToCsv(userService.getAllUsers()));
                 attachments.add(bandwidthUserModelToCsv(bandwidthService.getAll()));
                 attachments.add(contractModelToCsv(contractService.getAllContracts()));
                 attachments.add(telegramUserModelToCsv(telegramUserService.getUsers()));
+                if (attachments.stream().filter(Objects::nonNull).toList().isEmpty()){
+                    yield SendMessage.builder()
+                            .chatId(commandData.getChatId())
+                            .text(i18N.get("command.manager.export.csv.cant.create.file"))
+                            .build();
+                }
                 List<InputMedia> medias = new ArrayList<>(attachments.stream()
                         .map(file -> (InputMedia) InputMediaDocument
                         .builder().media("attach://" + file.getName())
                         .mediaName(file.getName()).isNewMedia(true)
                         .newMediaFile(file).build()).toList());
                 medias.get(medias.size() - 1).setCaption("Take your data, sir.");
-                yield SendMediaGroup.builder().medias(medias).chatId(commandData.getChatId()).build();
+                yield SendMediaGroup.builder()
+                        .medias(medias)
+                        .chatId(commandData.getChatId())
+                        .build();
             }
         };
     }
@@ -135,6 +178,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
             writer.write(csvString);
         } catch (IOException e) {
             log.error("Failed to export csv", e);
+            return null;
         }
         return file;
     }
@@ -160,6 +204,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
             writer.write(csvString);
         } catch (IOException e) {
             log.error("Failed to export csv", e);
+            return null;
         }
         return file;
     }
@@ -173,7 +218,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
             Long userModelId = model.getUserModel().getId();
             String bandwidth;
             if (model.getBandwidth() == null) {
-                bandwidth = "null";
+                bandwidth = "None";
             } else {
                 bandwidth = model.getBandwidth().name();
             }
@@ -186,6 +231,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
             writer.write(csvString);
         } catch (IOException e) {
             log.error("Failed to export csv", e);
+            return null;
         }
         return bandwidthFile;
     }
@@ -194,7 +240,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
         File contractFile = new File("contract.csv");
         StringBuilder csvStringBuilder = new StringBuilder();
         csvStringBuilder.append("id,userModelId,startDate,endDate\n");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
         for (ContractModel model : models) {
             Long id = model.getId();
             Long userModelId = model.getUserModel().getId();
@@ -209,6 +255,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
             writer.write(csvString);
         } catch (IOException e) {
             log.error("Failed to export csv", e);
+            return null;
         }
         return contractFile;
     }
