@@ -4,11 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.commands.Command;
 import org.Roclh.handlers.commands.CommandData;
-import org.Roclh.handlers.commands.common.GetLinkCommand;
-import org.Roclh.handlers.commands.common.HelpCommand;
-import org.Roclh.handlers.commands.common.RegisterCommand;
-import org.Roclh.handlers.commands.common.SelectLangCommand;
-import org.Roclh.handlers.commands.common.StartCommand;
+import org.Roclh.handlers.commands.common.*;
+import org.Roclh.handlers.commands.manager.ExportCsvCommand;
 import org.Roclh.handlers.commands.sh.ScreenListCommand;
 import org.Roclh.handlers.commands.telegramUser.DeleteTelegramUserCommand;
 import org.Roclh.handlers.commands.telegramUser.ListTelegramUserCommand;
@@ -59,10 +56,11 @@ public class CommandHandler {
                           DeleteUserCommand deleteUserCommand,
                           LimitFlowCommand limitFlowCommand,
                           AddContractCommand addContractCommand,
-                          GetLinkCommand getLinkCommand,
                           SetRoleCommand setRoleCommand,
                           SelectLangCommand selectLangCommand,
-                          LocalizationService localizationService) {
+                          LocalizationService localizationService,
+                          GetLinkCommand getLinkCommand,
+                          ExportCsvCommand exportCsvCommand) {
         this.localizationService = localizationService;
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(helpCommand.getCommandNames(), helpCommand);
@@ -77,6 +75,7 @@ public class CommandHandler {
         commands.put(deleteUserCommand.getCommandNames(), deleteUserCommand);
         commands.put(limitFlowCommand.getCommandNames(), limitFlowCommand);
         commands.put(listCommand.getCommandNames(), listCommand);
+        commands.put(exportCsvCommand.getCommandNames(), exportCsvCommand);
         commands.put(addContractCommand.getCommandNames(), addContractCommand);
         commands.put(getLinkCommand.getCommandNames(), getLinkCommand);
         commands.put(setRoleCommand.getCommandNames(), setRoleCommand);

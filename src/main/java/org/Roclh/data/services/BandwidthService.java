@@ -13,6 +13,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -169,5 +170,9 @@ public class BandwidthService {
         }
         ScriptRunner.runCommand(new String[]{"./" + scriptPath});
         wasInitialized = true;
+    }
+
+    public List<BandwidthModel> getAll(){
+        return bandwidthRepository.findAll();
     }
 }
