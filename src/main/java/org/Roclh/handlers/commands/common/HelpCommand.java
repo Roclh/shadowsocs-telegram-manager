@@ -42,14 +42,14 @@ public class HelpCommand extends AbstractCommand<SendMessage> {
     }
 
     @Override
-    public boolean isManager(Long userId) {
+    public boolean isAllowed(Long userId) {
         return telegramUserService.isAllowed(userId, Role.USER);
     }
 
 
     @Override
     public String getHelp() {
-        return String.join("|", getCommandNames().subList(0, 2)) + "\n -- shows available commands";
+        return String.join("|", getCommandNames().subList(0, 2)) + "\n";
     }
 
     @Override

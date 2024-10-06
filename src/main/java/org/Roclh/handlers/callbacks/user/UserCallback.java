@@ -95,7 +95,11 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                     .messageId(callbackData.getMessageId())
                     .text(getSendMessageCommandResult(callbackData))
                     .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.combineKeyboardMarkups(
+                            InlineUtils.getDefaultNavigationMarkup("Manage users", getName()),
+                            InlineUtils.getNavigationToStart(callbackData)
+                    ))
+                    .parseMode("HTML")
                     .build();
             case "addnopwd", "add" -> EditMessageText.builder()
                     .messageId(callbackData.getMessageId())

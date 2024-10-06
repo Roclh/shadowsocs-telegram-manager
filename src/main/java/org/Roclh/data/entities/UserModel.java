@@ -60,6 +60,15 @@ public class UserModel {
         return getId() != null && Objects.equals(getId(), userModel.getId());
     }
 
+    public String toFormattedString() {
+        return "<b><i>" + userModel.getTelegramName() + ":</i></b>\n<u>Telegram Id:</u> " +
+                "<a href=\"tg://user?id=" + userModel.getTelegramId() + "\">" + userModel.getTelegramId() + "</a>" +
+                "\n<u>Used port</u>: " + usedPort +
+                "\n<u>Password</u>: <tg-spoiler>" + password + "</tg-spoiler>"+
+                "\n<u>Is added</u>: " + isAdded +
+                "\n";
+    }
+
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();

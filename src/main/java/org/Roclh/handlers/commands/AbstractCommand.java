@@ -17,7 +17,7 @@ public abstract class AbstractCommand<T extends PartialBotApiMethod<? extends Se
     protected final TelegramUserService telegramUserService;
     protected I18N i18N;
 
-    public boolean isManager(Long userId) {
+    public boolean isAllowed(Long userId) {
         return telegramUserService.isAllowed(userId, Role.MANAGER);
     }
 

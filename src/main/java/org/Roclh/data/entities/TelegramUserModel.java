@@ -37,10 +37,19 @@ public class TelegramUserModel {
     private String telegramName;
     @Nullable
     private Long chatId;
+
     @Override
     public String toString() {
         return "[" + telegramId + ":'" + telegramName + " - " + role.name() + "']: " +
                 " chatId='" + chatId + '\'';
+    }
+
+    public String toFormattedString() {
+        return "<b><i>" + telegramName + ":</i></b>\n<u>Telegram Id:</u> " +
+                "<a href=\"tg://user?id=" + telegramId + "\">" + telegramId + "</a>" +
+                "\n<u>Role:</u> " + role.name() +
+                "\n<u>Chat Id:</u> " + chatId +
+                "\n";
     }
 
 }

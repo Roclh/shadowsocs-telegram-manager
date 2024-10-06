@@ -97,7 +97,7 @@ public class CommandHandler {
         }
         String finalCommand = command;
         Command<? extends PartialBotApiMethod<?>> commandHandler = getCommand(finalCommand);
-        if (commandHandler != null && commandHandler.isManager(commandData.getTelegramId())) {
+        if (commandHandler != null && commandHandler.isAllowed(commandData.getTelegramId())) {
             log.info("Recognized command {}, starting handling", command);
             commandHandler.setI18N(commandData.getLocale());
             return commandHandler.handle(commandData);
@@ -108,7 +108,7 @@ public class CommandHandler {
 
     public static String getCommandNames(Long telegramId, Locale locale) {
         return commands.values().stream()
-                .filter(command -> command.isManager(telegramId))
+                .filter(command -> command.isAllowed(telegramId))
                 .map(command -> command.setI18N(locale))
                 .map(Command::getHelp)
                 .filter(Objects::nonNull)
@@ -117,7 +117,7 @@ public class CommandHandler {
 
     public static List<Command> getCommands(Update update) {
         return commands.values().stream()
-                .filter(command -> command.isManager(update.getMessage().getFrom().getId()))
+                .filter(command -> command.isAllowed(update.getMessage().getFrom().getId()))
                 .collect(Collectors.toList());
     }
 

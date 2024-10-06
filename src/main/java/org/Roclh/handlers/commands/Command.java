@@ -14,7 +14,7 @@ public interface Command<T extends PartialBotApiMethod<? extends Serializable>> 
     }
     List<String> getCommandNames();
 
-    boolean isManager(Long userId);
+    boolean isAllowed(Long userId);
 
     Command<T> setI18N(Locale locale);
 }

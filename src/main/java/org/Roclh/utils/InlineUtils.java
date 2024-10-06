@@ -70,6 +70,13 @@ public class InlineUtils {
         return inlineKeyboardMarkup;
     }
 
+    public static InlineKeyboardMarkup combineKeyboardMarkups(InlineKeyboardMarkup... keyboardMarkups){
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        for (InlineKeyboardMarkup markup : keyboardMarkups){
+            rows.addAll(markup.getKeyboard());
+        }
+        return InlineKeyboardMarkup.builder().keyboard(rows).build();
+    }
     @NonNull
     public static InlineKeyboardMarkup getListNavigationMarkup(Map<String, String> selectables,
                                                                Function<String, String> callbackDataConsumer,

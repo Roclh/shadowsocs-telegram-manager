@@ -30,7 +30,7 @@ public class SelectLangCallback extends AbstractCallback<EditMessageText> {
         return switch (commandLength) {
             case 1 -> EditMessageText.builder()
                     .messageId(callbackData.getMessageId())
-                    .text(i18N.get("callback.common.selectlang.select.lang.inline.button"))
+                    .text(i18N.get("callback.common.selectlang.select.lang.message"))
                     .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectLangMarkup(callbackData))
                     .build();
@@ -50,7 +50,7 @@ public class SelectLangCallback extends AbstractCallback<EditMessageText> {
     @Override
     public List<InlineKeyboardButton> getCallbackButtonRow() {
         return List.of(InlineKeyboardButton.builder()
-                .text("Select lang")
+                .text(i18N.get("callback.common.selectlang.select.button.inline"))
                 .callbackData(getName())
                 .build()
         );

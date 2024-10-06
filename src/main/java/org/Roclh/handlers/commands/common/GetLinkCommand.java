@@ -76,7 +76,7 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
 
 
     @Override
-    public boolean isManager(Long userId) {
+    public boolean isAllowed(Long userId) {
         return telegramUserService.isAllowed(userId, Role.USER) && userService.getUser(userId).map(UserModel::isAdded).orElse(false);
     }
 

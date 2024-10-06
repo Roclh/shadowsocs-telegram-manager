@@ -81,7 +81,11 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
                     .messageId(callbackData.getMessageId())
                     .text(getSendMessageCommandResult(callbackData))
                     .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.combineKeyboardMarkups(
+                            InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.user.telegramuser.callback.button"), getName()),
+                            InlineUtils.getNavigationToStart(callbackData)
+                    ))
+                    .parseMode("HTML")
                     .build();
             case "deltg" -> EditMessageText.builder()
                     .messageId(callbackData.getMessageId())

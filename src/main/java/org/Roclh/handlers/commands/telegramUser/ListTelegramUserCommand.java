@@ -24,7 +24,7 @@ public class ListTelegramUserCommand extends AbstractCommand<SendMessage> {
         sendMessage.setChatId(String.valueOf(chatId));
         List<TelegramUserModel> allUsers = telegramUserService.getUsers();
         sendMessage.setText(allUsers.size() + " telegram users:\n" +
-                allUsers.stream().map(TelegramUserModel::toString)
+                allUsers.stream().map(TelegramUserModel::toFormattedString)
                         .collect(Collectors.joining("\n")));
         return sendMessage;
     }

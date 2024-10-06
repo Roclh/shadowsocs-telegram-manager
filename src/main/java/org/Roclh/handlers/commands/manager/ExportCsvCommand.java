@@ -51,7 +51,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
     }
 
     @Override
-    public boolean isManager(Long userId) {
+    public boolean isAllowed(Long userId) {
         return telegramUserService.isAllowed(userId, Role.ROOT);
     }
 
@@ -261,6 +261,6 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
     }
 
     public enum FileDataTypes {
-        USER, TGUSER, BANDWIDTH, CONTRACT, ALL;
+        USER, TGUSER, BANDWIDTH, CONTRACT, ALL
     }
 }

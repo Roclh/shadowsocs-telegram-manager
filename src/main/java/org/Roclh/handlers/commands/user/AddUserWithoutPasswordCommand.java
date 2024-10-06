@@ -1,6 +1,7 @@
 package org.Roclh.handlers.commands.user;
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
@@ -8,6 +9,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.ss.ShadowsocksProperties;
+import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.PasswordUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,11 +21,13 @@ import java.util.UUID;
 @Component
 public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
+    private final TelegramBotStorage telegramBotStorage;
     private final ShadowsocksProperties shadowsocksProperties;
 
-    public AddUserWithoutPasswordCommand(TelegramUserService telegramUserService, UserService userManager, ShadowsocksProperties shadowsocksProperties) {
+    public AddUserWithoutPasswordCommand(TelegramUserService telegramUserService, UserService userManager, TelegramBotStorage telegramBotStorage, ShadowsocksProperties shadowsocksProperties) {
         super(telegramUserService);
         this.userManager = userManager;
+        this.telegramBotStorage = telegramBotStorage;
         this.shadowsocksProperties = shadowsocksProperties;
     }
 
@@ -40,9 +44,9 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 
-        if(shadowsocksProperties.getPortRange().range().stream().filter(userManager::isPortInUse).toList().contains(port)){
+        if (shadowsocksProperties.getPortRange().range().stream().filter(userManager::isPortInUse).toList().contains(port)) {
             log.error("Failed to add user - port {} already in use!", port);
-            sendMessage.setText("Failed to add user - port " + port +" already in use!");
+            sendMessage.setText("Failed to add user - port " + port + " already in use!");
             return sendMessage;
         }
 
@@ -70,6 +74,13 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
             log.error("Failed to add user - failed to save user model with id {}", telegramId);
             sendMessage.setText("Failed to add user - failed to save user model with id " + telegramId);
             return sendMessage;
+        }
+        if (userModel.getUserModel().getChatId() != null) {
+            telegramBotStorage.getTelegramBot().sendMessage(SendMessage.builder()
+                    .text(i18N.get("command.common.adduserwithoutpassword.granted.access"))
+                    .chatId(userModel.getUserModel().getChatId())
+                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
+                    .build());
         }
         sendMessage.setText("User with id " + telegramId + " added successfully!");
         return sendMessage;

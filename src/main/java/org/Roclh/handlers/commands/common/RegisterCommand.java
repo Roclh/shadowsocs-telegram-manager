@@ -52,7 +52,7 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
 
 
     @Override
-    public boolean isManager(Long userId) {
+    public boolean isAllowed(Long userId) {
         return true;
     }
 

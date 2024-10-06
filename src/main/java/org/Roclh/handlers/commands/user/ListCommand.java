@@ -31,7 +31,7 @@ public class ListCommand extends AbstractCommand<SendMessage> {
         sendMessage.setChatId(String.valueOf(chatId));
         List<UserModel> allUsers = userService.getAllUsers();
         sendMessage.setText(allUsers.size() + " added users:\n" +
-                allUsers.stream().map(u -> u.toString() + bandwidthService.getRule(u.getUserModel().getTelegramId()).map(r -> "," + r).orElse(""))
+                allUsers.stream().map(UserModel::toFormattedString)
                         .collect(Collectors.joining("\n")));
         return sendMessage;
     }

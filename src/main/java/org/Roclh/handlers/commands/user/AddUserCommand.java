@@ -1,6 +1,7 @@
 package org.Roclh.handlers.commands.user;
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
@@ -8,6 +9,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.CommandData;
 import org.Roclh.ss.ShadowsocksProperties;
+import org.Roclh.utils.InlineUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -18,12 +20,14 @@ import java.util.List;
 public class AddUserCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
     private final TelegramUserService telegramUserService;
+    private final TelegramBotStorage telegramBotStorage;
     private final ShadowsocksProperties shadowsocksProperties;
 
-    public AddUserCommand(TelegramUserService telegramUserService, UserService userManager, TelegramUserService telegramUserService1, ShadowsocksProperties shadowsocksProperties) {
+    public AddUserCommand(TelegramUserService telegramUserService, UserService userManager, TelegramUserService telegramUserService1, TelegramBotStorage telegramBotStorage, ShadowsocksProperties shadowsocksProperties) {
         super(telegramUserService);
         this.userManager = userManager;
         this.telegramUserService = telegramUserService1;
+        this.telegramBotStorage = telegramBotStorage;
         this.shadowsocksProperties = shadowsocksProperties;
     }
 
@@ -32,6 +36,9 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
         String[] words = commandData.getCommand().split(" ");
         if (words.length < 4) {
             return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - not enough arguments").build();
+        }
+        if(words.length > 4){
+            return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - password should not contain spaces").build();
         }
         long chatId = commandData.getChatId();
         SendMessage sendMessage = new SendMessage();
@@ -69,6 +76,13 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
             log.error("Failed to add user - failed to save user model with id {}", telegramId);
             sendMessage.setText("Failed to add user - failed to save user model with id " + telegramId);
             return sendMessage;
+        }
+        if (userModel.getUserModel().getChatId() != null) {
+            telegramBotStorage.getTelegramBot().sendMessage(SendMessage.builder()
+                    .text(i18N.get("command.common.adduserwithoutpassword.granted.access"))
+                    .chatId(userModel.getUserModel().getChatId())
+                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
+                    .build());
         }
         sendMessage.setText("User with id " + telegramId + " was added successfully!");
         return sendMessage;
