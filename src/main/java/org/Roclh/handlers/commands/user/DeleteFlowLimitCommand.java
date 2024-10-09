@@ -7,7 +7,9 @@ import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -26,13 +28,14 @@ public class DeleteFlowLimitCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public SendMessage handle(CommandData commandData) {
+        MessageData messageData = commandData.getMessageData();
         String[] words = commandData.getCommand().split(" ");
         if (words.length < 2) {
-            return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - not enough arguments").build();
+            return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to execute command - not enough arguments").build();
         }
         Long telegramId = Long.parseLong(words[1]);
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(commandData.getChatId());
+        sendMessage.setChatId(messageData.getChatId());
 
         UserModel userModel = userService.getUser(telegramId).orElse(null);
         if(userModel == null){

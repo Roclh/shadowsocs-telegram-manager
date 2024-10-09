@@ -8,8 +8,10 @@ import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.utils.InlineUtils;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -28,36 +30,34 @@ public class StartCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public SendMessage handle(CommandData commandData) {
-        long chatId = commandData.getChatId();
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        if (telegramUserService.exists(commandData.getTelegramId()) && telegramUserService.isAllowed(commandData.getTelegramId(), Role.USER)) {
-            sendMessage.setText(telegramUserService.isAllowed(commandData.getTelegramId(), Role.MANAGER) ?
+        MessageData messageData = commandData.getMessageData();
+        long chatId = messageData.getChatId();
+        SendMessage.SendMessageBuilder sendMessage = MessageUtils.sendMessage(messageData);
+        if (telegramUserService.exists(messageData.getTelegramId()) && telegramUserService.isAllowed(messageData.getTelegramId(), Role.USER)) {
+            sendMessage.text(telegramUserService.isAllowed(messageData.getTelegramId(), Role.MANAGER) ?
                     i18N.get("command.common.start.select.command",
-                            commandData.getTelegramName(),
-                            userService.getUser(commandData.getTelegramId()).map(UserModel::isAdded).orElse(false) ?
+                            messageData.getTelegramName(),
+                            userService.getUser(messageData.getTelegramId()).map(UserModel::isAdded).orElse(false) ?
                                     i18N.get("command.common.start.server.state.enabled") :
                                     i18N.get("command.common.start.server.state.disabled")) :
                     i18N.get("command.common.start.select.command.user",
-                            commandData.getTelegramName(),
-                            userService.getUser(commandData.getTelegramId()).map(UserModel::isAdded).orElse(false) ?
+                            messageData.getTelegramName(),
+                            userService.getUser(messageData.getTelegramId()).map(UserModel::isAdded).orElse(false) ?
                                     i18N.get("command.common.start.server.state.enabled") :
                                     i18N.get("command.common.start.server.state.disabled"))
             );
-            sendMessage.setReplyMarkup(getInlineKeyboardButtons(commandData));
-            sendMessage.setParseMode("HTML");
+            sendMessage.replyMarkup(getInlineKeyboardButtons(commandData.getMessageData()));
         } else {
             telegramUserService.saveUser(TelegramUserModel.builder()
                     .role(Role.GUEST)
-                    .telegramId(commandData.getTelegramId())
-                    .telegramName(commandData.getTelegramName())
+                    .telegramId(messageData.getTelegramId())
+                    .telegramName(messageData.getTelegramName())
                     .chatId(chatId)
                     .build());
-            sendMessage.setText(i18N.get("command.common.start.welcome.message"));
-            sendMessage.setReplyMarkup(getGuestKeyboardMarkup());
-            sendMessage.setParseMode("HTML");
+            sendMessage.text(i18N.get("command.common.start.welcome.message"));
+            sendMessage.replyMarkup(getGuestKeyboardMarkup());
         }
-        return sendMessage;
+        return sendMessage.build();
     }
 
     @Override
@@ -74,9 +74,9 @@ public class StartCommand extends AbstractCommand<SendMessage> {
         return InlineUtils.getDefaultNavigationMarkup(i18N.get("command.common.start.register.button"), "register");
     }
 
-    private InlineKeyboardMarkup getInlineKeyboardButtons(CommandData commandData) {
+    private InlineKeyboardMarkup getInlineKeyboardButtons(MessageData messageData) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(commandData.getTelegramId(), commandData.getLocale()));
+        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(messageData.getTelegramId(), messageData.getLocale()));
         return keyboardMarkup;
     }
 }

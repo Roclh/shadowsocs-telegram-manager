@@ -7,14 +7,15 @@ import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.callbacks.AbstractCallback;
-import org.Roclh.handlers.callbacks.CallbackData;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CallbackData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.utils.InlineUtils;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -40,19 +41,16 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
             commandLength -= 1;
         }
         return switch (commandLength) {
-            case 1 -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case 1 -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.user.telegramuser.select.command"))
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectCommandMarkup(callbackData))
                     .build();
             case 2 -> handleOneArgumentCommand(callbackData);
             case 3 -> handleTwoArgumentCommand(callbackData);
             case 4 -> handleThreeArgumentCommand(callbackData);
-            default -> SendMessage.builder()
-                    .text(i18N.get("callback.default.navigation.data.error"))
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
-                    .chatId(callbackData.getChatId()).build();
+            default -> MessageUtils.editMessage(callbackData.getMessageData()).text(i18N.get("callback.default.navigation.data.error"))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                    .build();
         };
     }
 
@@ -77,32 +75,24 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
     private PartialBotApiMethod<? extends Serializable> handleOneArgumentCommand(CallbackData callbackData) {
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
-            case "listtg" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "listtg" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(getSendMessageCommandResult(callbackData))
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(InlineUtils.combineKeyboardMarkups(
                             InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.user.telegramuser.callback.button"), getName()),
-                            InlineUtils.getNavigationToStart(callbackData)
+                            InlineUtils.getNavigationToStart(callbackData.getMessageData())
                     ))
-                    .parseMode("HTML")
                     .build();
-            case "deltg" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "deltg" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.user.telegramuser.select.telegram.user.delete"))
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectTelegramUserIdMarkup(callbackData, user -> true))
                     .build();
-            case "setrole" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "setrole" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.user.telegramuser.select.telegram.user.setrole"))
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectTelegramUserIdMarkup(callbackData, user -> true))
                     .build();
-            default -> SendMessage.builder()
-                    .chatId(callbackData.getChatId())
+            default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.default.navigation.data.error.parse.one.argument"))
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
         };
     }
@@ -110,22 +100,17 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
     private PartialBotApiMethod<? extends Serializable> handleTwoArgumentCommand(CallbackData callbackData) {
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
-            case "deltg" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "deltg" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(getSendMessageCommandResult(callbackData))
-                    .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
-            case "setrole" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "setrole" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.user.telegramuser.select.role"))
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectRoleMarkup(callbackData))
                     .build();
-            default -> SendMessage.builder()
-                    .chatId(callbackData.getChatId())
+            default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.default.navigation.data.error.parse.two.argument"))
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
         };
     }
@@ -133,16 +118,13 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
     private PartialBotApiMethod<? extends Serializable> handleThreeArgumentCommand(CallbackData callbackData) {
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
-            case "setrole" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "setrole" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(getSendMessageCommandResult(callbackData))
-                    .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
-            default -> SendMessage.builder()
-                    .chatId(callbackData.getChatId())
+            default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.default.navigation.data.error.parse.three.argument"))
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
         };
     }
@@ -155,21 +137,22 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
         map.put(i18N.get("callback.user.telegramuser.inline.button.set.role"), "setrole");
         return InlineUtils.getListNavigationMarkup(map,
                 (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getLocale(),
+                callbackData.getMessageData().getLocale(),
                 () -> "start"
         );
     }
 
     private InlineKeyboardMarkup getSelectRoleMarkup(CallbackData callbackData) {
+        MessageData messageData = callbackData.getMessageData();
         String[] command = callbackData.getCallbackData().split(" ");
         Assert.isTrue(command.length >= 3, "Select role expects to have at least command and 2 arguments");
         Long selectedId = Long.parseLong(command[command.length - 1]);
         return InlineUtils.getListNavigationMarkup(Arrays.stream(Role.values())
                         .filter(role -> telegramUserService.getUser(selectedId).map(user -> !user.getRole().equals(role)).orElse(false))
-                        .filter(role -> telegramUserService.isAllowed(callbackData.getTelegramId(), role))
+                        .filter(role -> telegramUserService.isAllowed(messageData.getTelegramId(), role))
                         .collect(Collectors.toMap(Role::name, Role::name)),
                 (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getLocale(),
+                messageData.getLocale(),
                 () -> callbackData.getCallbackData().substring(0, callbackData.getCallbackData().lastIndexOf(" "))
         );
     }

@@ -7,7 +7,9 @@ import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -24,21 +26,21 @@ public class HelpCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public SendMessage handle(CommandData commandData) {
-        long chatId = commandData.getChatId();
-        SendMessage sendMessage = new SendMessage();
-        if(!telegramUserService.exists(commandData.getTelegramId())){
+        MessageData messageData = commandData.getMessageData();
+        long chatId = messageData.getChatId();
+        if(!telegramUserService.exists(messageData.getTelegramId())){
             telegramUserService.saveUser(TelegramUserModel.builder()
-                    .telegramId(commandData.getTelegramId())
-                    .telegramName(commandData.getTelegramName())
+                    .telegramId(messageData.getTelegramId())
+                    .telegramName(messageData.getTelegramName())
                     .chatId(chatId)
                     .role(Role.GUEST)
                     .build());
         }
-        sendMessage.setChatId(String.valueOf(chatId));
-        sendMessage.setText(i18N.get("command.common.help.text") +
-                CommandHandler.getCommandNames(commandData.getTelegramId(), commandData.getLocale()));
-        sendMessage.setReplyMarkup(getInlineKeyboardButtons(commandData));
-        return sendMessage;
+        return MessageUtils.sendMessage(messageData)
+                .text(i18N.get("command.common.help.text") +
+                        CommandHandler.getCommandNames(messageData.getTelegramId(), messageData.getLocale()))
+                .replyMarkup(getInlineKeyboardButtons(commandData.getMessageData()))
+                .build();
     }
 
     @Override
@@ -57,9 +59,9 @@ public class HelpCommand extends AbstractCommand<SendMessage> {
         return List.of("help", "h");
     }
 
-    private InlineKeyboardMarkup getInlineKeyboardButtons(CommandData commandData) {
+    private InlineKeyboardMarkup getInlineKeyboardButtons(MessageData messageData) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(commandData.getTelegramId(), commandData.getLocale()));
+        keyboardMarkup.setKeyboard(CallbackHandler.getAllowedCallbackButtons(messageData.getTelegramId(), messageData.getLocale()));
         return keyboardMarkup;
     }
 }

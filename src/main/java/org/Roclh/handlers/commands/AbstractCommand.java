@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.Roclh.data.Role;
 import org.Roclh.data.services.TelegramUserService;
@@ -15,6 +16,7 @@ import java.util.Locale;
 public abstract class AbstractCommand<T extends PartialBotApiMethod<? extends Serializable>> implements Command<T> {
 
     protected final TelegramUserService telegramUserService;
+    @Getter
     protected I18N i18N;
 
     public boolean isAllowed(Long userId) {

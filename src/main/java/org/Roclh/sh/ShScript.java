@@ -1,6 +1,5 @@
 package org.Roclh.sh;
 
-public interface ShScript{
-    String path();
-    String content();
+public interface ShScript<T>{
+    T execute();
 }

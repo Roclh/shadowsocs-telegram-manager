@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
@@ -34,4 +35,9 @@ public class ContractModel {
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    public String toFormattedString(){
+        return  "\n<u>Start date</u>: " + startDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) +
+                "\n<u>End date</u>: " + endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
 }

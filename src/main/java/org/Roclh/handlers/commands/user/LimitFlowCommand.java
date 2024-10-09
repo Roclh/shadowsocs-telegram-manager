@@ -7,7 +7,9 @@ import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -29,11 +31,12 @@ public class LimitFlowCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public SendMessage handle(CommandData commandData) {
+        MessageData messageData = commandData.getMessageData();
         String[] words = commandData.getCommand().split(" ");
         if (words.length < 3) {
-            return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - not enough arguments").build();
+            return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to execute command - not enough arguments").build();
         }
-        long chatId = commandData.getChatId();
+        long chatId = messageData.getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 

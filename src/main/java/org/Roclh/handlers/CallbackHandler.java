@@ -3,15 +3,15 @@ package org.Roclh.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.callbacks.Callback;
-import org.Roclh.handlers.callbacks.CallbackData;
+import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.callbacks.common.DefaultCallback;
 import org.Roclh.handlers.callbacks.common.GetQrCallback;
 import org.Roclh.handlers.callbacks.common.HelpCallback;
 import org.Roclh.handlers.callbacks.common.SelectLangCallback;
 import org.Roclh.handlers.callbacks.common.StartCallback;
-import org.Roclh.handlers.callbacks.common.TestInlineCallback;
 import org.Roclh.handlers.callbacks.user.TelegramUserCallback;
 import org.Roclh.handlers.callbacks.user.UserCallback;
+import org.Roclh.handlers.messaging.MessageData;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -33,7 +33,6 @@ public class CallbackHandler {
 
     public CallbackHandler(DefaultCallback defaultCallback,
                            StartCallback startCallback,
-                           TestInlineCallback inlineCallback,
                            UserCallback userCallback,
                            HelpCallback helpCallback,
                            TelegramUserCallback telegramUserCallback,
@@ -44,7 +43,6 @@ public class CallbackHandler {
         this.localizationService = localizationService;
         callbacks.put(DEFAULT_CALLBACK_KEY, defaultCallback);
         callbacks.put(startCallback.getName(), startCallback);
-        callbacks.put(inlineCallback.getName(), inlineCallback);
         callbacks.put(userCallback.getName(), userCallback);
         callbacks.put(telegramUserCallback.getName(), telegramUserCallback);
         callbacks.put(helpCallback.getName(), helpCallback);
@@ -57,14 +55,15 @@ public class CallbackHandler {
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCallbacks(CallbackData callbackData) {
-        long chatId = callbackData.getChatId();
+        MessageData messageData = callbackData.getMessageData();
+        long chatId = messageData.getChatId();
         log.info("Received a callback from id {} with data {}", chatId, callbackData);
         log.info("Existing keys: {}", callbacks.keySet());
 
         if (callbacks.containsKey(callbackData.getCallbackCommand())) {
-            return callbacks.get(callbackData.getCallbackCommand()).setI18N(callbackData.getLocale()).apply(callbackData);
+            return callbacks.get(callbackData.getCallbackCommand()).setI18N(messageData.getLocale()).apply(callbackData);
         } else {
-            return callbacks.get(DEFAULT_CALLBACK_KEY).setI18N(callbackData.getLocale()).apply(callbackData);
+            return callbacks.get(DEFAULT_CALLBACK_KEY).setI18N(messageData.getLocale()).apply(callbackData);
         }
     }
 

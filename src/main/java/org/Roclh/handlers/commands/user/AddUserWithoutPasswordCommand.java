@@ -7,9 +7,11 @@ import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.ss.ShadowsocksProperties;
 import org.Roclh.utils.InlineUtils;
+import org.Roclh.utils.MessageUtils;
 import org.Roclh.utils.PasswordUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -33,14 +35,15 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
 
     @Override
     public SendMessage handle(CommandData commandData) {
+        MessageData messageData = commandData.getMessageData();
         String[] words = commandData.getCommand().split(" ");
         if (words.length < 3) {
-            return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - not enough arguments").build();
+            return SendMessage.builder().chatId(messageData.getChatId()).text("Failed to execute command - not enough arguments").build();
         }
 
         Long telegramId = Long.parseLong(words[1]);
         Long port = Long.parseLong(words[2]);
-        long chatId = commandData.getChatId();
+        long chatId = messageData.getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 
@@ -76,9 +79,8 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
             return sendMessage;
         }
         if (userModel.getUserModel().getChatId() != null) {
-            telegramBotStorage.getTelegramBot().sendMessage(SendMessage.builder()
+            telegramBotStorage.getTelegramBot().sendMessage(MessageUtils.sendMessage(commandData.getMessageData())
                     .text(i18N.get("command.common.adduserwithoutpassword.granted.access"))
-                    .chatId(userModel.getUserModel().getChatId())
                     .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
                     .build());
         }

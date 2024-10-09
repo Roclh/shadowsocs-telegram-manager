@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.CommandHandler;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;

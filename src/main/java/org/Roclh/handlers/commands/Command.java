@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands;
 
+import org.Roclh.handlers.messaging.CommandData;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 
 import java.io.Serializable;

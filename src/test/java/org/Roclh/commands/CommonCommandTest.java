@@ -1,6 +1,7 @@
 package org.Roclh.commands;
 
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -16,12 +17,14 @@ public class CommonCommandTest {
     @Mock
     protected Update update = Mockito.mock(Update.class);
     protected CommandData commandData = Mockito.mock(CommandData.class);
+    protected MessageData messageData = Mockito.mock(MessageData.class);
     @Mock
     protected Message updateMessage = Mockito.mock(Message.class);
 
     @BeforeEach
     public void prepareMocks(){
-        when(commandData.getChatId()).thenReturn(Long.valueOf(chatId));
+        when(messageData.getChatId()).thenReturn(Long.valueOf(chatId));
+        when(commandData.getMessageData()).thenReturn(messageData);
         when(update.getMessage()).thenReturn(updateMessage);
         when(updateMessage.getChatId()).thenReturn(Long.valueOf(chatId));
         //set debug property to default

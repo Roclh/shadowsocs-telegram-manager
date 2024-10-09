@@ -5,9 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.callbacks.AbstractCallback;
-import org.Roclh.handlers.callbacks.CallbackData;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CallbackData;
+import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.utils.InlineUtils;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -28,17 +29,15 @@ public class SelectLangCallback extends AbstractCallback<EditMessageText> {
     public EditMessageText apply(CallbackData callbackData) {
         int commandLength = callbackData.getCallbackData().split(" ").length;
         return switch (commandLength) {
-            case 1 -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case 1 -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.common.selectlang.select.lang.message"))
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectLangMarkup(callbackData))
                     .build();
             case 2 -> handleOneArgumentCommand(callbackData);
-            default -> EditMessageText.builder()
+            default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.default.navigation.data.error"))
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
-                    .chatId(callbackData.getChatId()).build();
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                    .build();
         };
     }
 
@@ -66,17 +65,15 @@ public class SelectLangCallback extends AbstractCallback<EditMessageText> {
                         .getSupportedLocales()
                         .stream().collect(Collectors.toMap(lang -> i18N.get(lang), lang -> lang)),
                 (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getLocale(),
+                callbackData.getMessageData().getLocale(),
                 () -> "start"
         );
     }
 
     private EditMessageText handleOneArgumentCommand(CallbackData callbackData) {
-        return EditMessageText.builder()
+        return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(((SendMessage) commandHandler.handleCommands(CommandData.from(callbackData))).getText())
-                .messageId(callbackData.getMessageId())
-                .chatId(callbackData.getChatId())
-                .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                 .build();
     }
 

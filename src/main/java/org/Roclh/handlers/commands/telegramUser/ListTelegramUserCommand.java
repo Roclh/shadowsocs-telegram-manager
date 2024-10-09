@@ -3,10 +3,10 @@ package org.Roclh.handlers.commands.telegramUser;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,16 +17,15 @@ public class ListTelegramUserCommand extends AbstractCommand<SendMessage> {
     public ListTelegramUserCommand(TelegramUserService telegramUserService) {
         super(telegramUserService);
     }
+
     @Override
     public SendMessage handle(CommandData commandData) {
-        long chatId = commandData.getChatId();
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatId));
         List<TelegramUserModel> allUsers = telegramUserService.getUsers();
-        sendMessage.setText(allUsers.size() + " telegram users:\n" +
-                allUsers.stream().map(TelegramUserModel::toFormattedString)
-                        .collect(Collectors.joining("\n")));
-        return sendMessage;
+        return MessageUtils.sendMessage(commandData.getMessageData())
+                .text(allUsers.size() + " telegram users:\n" +
+                        allUsers.stream().map(TelegramUserModel::toFormattedString)
+                                .collect(Collectors.joining("\n")))
+                .build();
     }
 
 

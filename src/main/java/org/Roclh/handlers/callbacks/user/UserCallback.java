@@ -11,14 +11,15 @@ import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.callbacks.AbstractCallback;
-import org.Roclh.handlers.callbacks.CallbackData;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CallbackData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.utils.InlineUtils;
+import org.Roclh.utils.MessageUtils;
 import org.Roclh.utils.PasswordUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -42,19 +43,20 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
 
     @Override
     public PartialBotApiMethod<? extends Serializable> apply(CallbackData callbackData) {
+        MessageData messageData = callbackData.getMessageData();
         int commandLength = callbackData.getCallbackData().split(" ").length;
         return switch (commandLength) {
-            case 1 -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case 1 -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Select command")
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectCommandMarkup(callbackData))
                     .build();
             case 2 -> handleOneArgumentCommand(callbackData);
             case 3 -> handleTwoArgumentCommand(callbackData);
             case 4 -> handleThreeArgumentCommand(callbackData);
-            default ->
-                    SendMessage.builder().text("Failed to process inline navigation data").chatId(callbackData.getChatId()).build();
+            default -> MessageUtils.editMessage(callbackData.getMessageData())
+                    .text("Failed to process inline navigation data")
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                    .build();
         };
     }
 
@@ -77,110 +79,88 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
     }
 
     private PartialBotApiMethod<? extends Serializable> handleOneArgumentCommand(CallbackData callbackData) {
+        MessageData messageData = callbackData.getMessageData();
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
-            case "enable" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "enable" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Select user id to enable")
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectUserIdMarkup(callbackData, user -> !user.isAdded()))
                     .build();
-            case "disable" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "disable" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Select user id to disable")
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectUserIdMarkup(callbackData, UserModel::isAdded))
                     .build();
-            case "list" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "list" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(getSendMessageCommandResult(callbackData))
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(InlineUtils.combineKeyboardMarkups(
                             InlineUtils.getDefaultNavigationMarkup("Manage users", getName()),
-                            InlineUtils.getNavigationToStart(callbackData)
+                            InlineUtils.getNavigationToStart(callbackData.getMessageData())
                     ))
-                    .parseMode("HTML")
                     .build();
-            case "addnopwd", "add" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "addnopwd", "add" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Select user id to add")
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectTelegramUserIdMarkup(callbackData, user -> !userService.isAddedUser(user)))
                     .build();
-            case "delete" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "delete" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Select user id to delete")
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectUserIdMarkup(callbackData, user -> true))
                     .build();
-            default -> SendMessage.builder()
-                    .chatId(callbackData.getChatId())
+            default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Failed to parse one argument command")
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
         };
     }
 
     private PartialBotApiMethod<? extends Serializable> handleTwoArgumentCommand(CallbackData callbackData) {
+        MessageData messageData = callbackData.getMessageData();
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
-            case "addnopwd", "add" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "addnopwd", "add" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Select port")
-                    .chatId(callbackData.getChatId())
                     .replyMarkup(getSelectPortMarkup(callbackData))
                     .build();
-            case "enable", "disable", "delete" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "enable", "disable", "delete" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(getSendMessageCommandResult(callbackData))
-                    .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
-            default -> SendMessage.builder()
-                    .chatId(callbackData.getChatId())
+            default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Failed to parse two argument command")
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
         };
     }
 
     private PartialBotApiMethod<? extends Serializable> handleThreeArgumentCommand(CallbackData callbackData) {
+        MessageData messageData = callbackData.getMessageData();
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
-            case "addnopwd" -> EditMessageText.builder()
-                    .messageId(callbackData.getMessageId())
+            case "addnopwd" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(getSendMessageCommandResult(callbackData))
-                    .chatId(callbackData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
             case "add" -> {
-                TelegramBot.waitSyncUpdate(callbackData.getTelegramId(), (commandData) -> {
+                TelegramBot.waitSyncUpdate(messageData.getTelegramId(), (commandData) -> {
                     if (PasswordUtils.validate(commandData.getCommand())) {
                         callbackData.setCallbackData(callbackData.getCallbackData() + " " + commandData.getCommand());
-                        return SendMessage.builder()
-                                .text(getSendMessageCommandResult(callbackData))
-                                .chatId(callbackData.getChatId())
-                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                        return MessageUtils.sendMessage(callbackData.getMessageData()).text(getSendMessageCommandResult(callbackData))
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                                 .build();
                     } else {
-                        return SendMessage.builder()
+                        return MessageUtils.sendMessage(callbackData.getMessageData())
                                 .text("Failed to validate password")
-                                .chatId(callbackData.getChatId())
-                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                                 .build();
                     }
                 });
-                yield EditMessageText.builder()
-                        .messageId(callbackData.getMessageId())
+                yield MessageUtils.editMessage(callbackData.getMessageData())
                         .text("Write a new password")
-                        .chatId(callbackData.getChatId())
-                        .replyMarkup(InlineUtils.getDefaultNavigationMarkup("Back", trimLastWord(callbackData.getCallbackData())))
+                        .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), trimLastWord(callbackData.getCallbackData())))
                         .build();
             }
-            default -> SendMessage.builder()
-                    .chatId(callbackData.getChatId())
+            default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Failed to parse two argument command")
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                     .build();
         };
 
@@ -200,7 +180,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
         }
         return InlineUtils.getListNavigationMarkup(map,
                 (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getLocale(),
+                callbackData.getMessageData().getLocale(),
                 () -> "start"
         );
     }
@@ -209,7 +189,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
         return InlineUtils.getListNavigationMarkup(Arrays.stream(BandwidthModel.Bandwidth.values())
                         .collect(Collectors.toMap(BandwidthModel.Bandwidth::getBandwidth, BandwidthModel.Bandwidth::name)),
                 (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getLocale(),
+                callbackData.getMessageData().getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())
         );
     }
@@ -221,7 +201,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                         .collect(Collectors.toMap(user -> user.getUserModel().getTelegramName() + ":" + user.getUserModel().getTelegramId(),
                                 userModel -> userModel.getUserModel().getTelegramId().toString())),
                 (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getLocale(),
+                callbackData.getMessageData().getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())
         );
     }
@@ -234,7 +214,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                         .collect(Collectors.toMap(user -> user.getTelegramName() + ":" + user.getTelegramId(),
                                 user -> user.getTelegramId().toString())),
                 (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getLocale(),
+                callbackData.getMessageData().getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())
         );
     }
@@ -243,7 +223,7 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
         return InlineUtils.getListNavigationMarkup(userService.getAvailablePorts(5)
                         .stream().collect(Collectors.toMap(port -> "Port " + port.toString(), Object::toString)),
                 (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getLocale(),
+                callbackData.getMessageData().getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())
         );
     }

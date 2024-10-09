@@ -2,7 +2,8 @@ package org.Roclh.utils;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.handlers.callbacks.CallbackData;
+import org.Roclh.handlers.messaging.CallbackData;
+import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.utils.i18n.I18N;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -61,7 +62,7 @@ public class InlineUtils {
             inlineKeyboardButtons.add(navigationRows);
         }
         List<InlineKeyboardButton> backRow = getDefaultRedoLastChangeCommandRow(
-                I18N.from(callbackData.getLocale()).get("callback.default.navigation.data.back"),
+                I18N.from(callbackData.getMessageData().getLocale()).get("callback.default.navigation.data.back"),
                 redoCallbackSupplier);
         if (backRow != null) {
             inlineKeyboardButtons.add(backRow);
@@ -127,7 +128,7 @@ public class InlineUtils {
      * @return keyboard markup with 1 button to navigate
      */
     public static InlineKeyboardMarkup getDefaultNavigationMarkup(@NonNull CallbackData callbackData) {
-        I18N i18N = I18N.from(callbackData.getLocale());
+        I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
         return getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), callbackData.getCallbackData());
     }
 
@@ -135,16 +136,16 @@ public class InlineUtils {
      * Returns a default localized inline keyboard markup
      * Callback data that passed to keyboard leads to start, so use it as return button
      *
-     * @param callbackData callback data to get I18N
+     * @param messageData message data to get I18N
      * @return keyboard markup with 1 button to navigate to start
      */
-    public static InlineKeyboardMarkup getNavigationToStart(@NonNull CallbackData callbackData) {
-        I18N i18N = I18N.from(callbackData.getLocale());
+    public static InlineKeyboardMarkup getNavigationToStart(@NonNull MessageData messageData) {
+        I18N i18N = I18N.from(messageData.getLocale());
         return getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), "start");
     }
 
     public static InlineKeyboardMarkup getNavigationToPreviousCommand(@NonNull CallbackData callbackData){
-        I18N i18N = I18N.from(callbackData.getLocale());
+        I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
         return getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"),
                 callbackData.getCallbackData().substring(0, callbackData.getCallbackData().lastIndexOf(" ")));
     }

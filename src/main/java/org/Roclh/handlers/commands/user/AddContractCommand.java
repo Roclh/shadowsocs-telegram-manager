@@ -6,7 +6,9 @@ import org.Roclh.data.services.ContractService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -30,34 +32,27 @@ public class AddContractCommand extends AbstractCommand<SendMessage> {
     public SendMessage handle(CommandData commandData) {
         String[] words = commandData.getCommand().split(" ");
         if (words.length < 4) {
-            return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - not enough arguments").build();
+            return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to execute command - not enough arguments").build();
         }
         Long telegramId = Long.valueOf(words[1]);
 
-        long chatId = commandData.getChatId();
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatId));
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
         try{
             startDateTime = LocalDateTime.parse(words[2], DateTimeFormatter.ISO_DATE);
             endDateTime = LocalDateTime.parse(words[3], DateTimeFormatter.ISO_DATE);
-        }catch (DateTimeParseException e){
+        }catch (DateTimeParseException e) {
             log.error("Failed to parse date time for one of the dates: {} or {}", words[1], words[2], e);
-            sendMessage.setText("Failed to parse date time for one of the dates: " + words[2] + " or " + words[3]);
-            return sendMessage;
+            return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to parse date time for one of the dates: " + words[2] + " or " + words[3]).build();
         }
-
         if(!userService.getUser(telegramId).map(user -> contractService.saveContract(ContractModel.builder().userModel(user)
                 .startDate(startDateTime)
                 .endDate(endDateTime)
                 .build())).orElse(false)){
             log.error("Failed to save a contract for user with id {}", telegramId);
-            sendMessage.setText("Failed to save a contract for user with id " + telegramId);
-            return sendMessage;
+            return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to save a contract for user with id " + telegramId).build();
         }
-        sendMessage.setText("Successfully saved a contract for user with id " + telegramId);
-        return sendMessage;
+        return MessageUtils.sendMessage(commandData.getMessageData()).text("Successfully saved a contract for user with id " + telegramId).build();
     }
 
     @Override

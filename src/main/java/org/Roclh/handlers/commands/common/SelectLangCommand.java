@@ -5,10 +5,11 @@ import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.data.Role;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.data.services.TelegramUserService;
-import org.Roclh.handlers.callbacks.CallbackData;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.utils.InlineUtils;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -28,28 +29,32 @@ public class SelectLangCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public SendMessage handle(CommandData commandData) {
+        MessageData messageData = commandData.getMessageData();
         String[] command = commandData.getCommand().split(" ");
         if (command.length < 2) {
             log.error("Failed to execute command - not enough arguments");
-            return SendMessage.builder().text(i18N.get("common.validation.not.enough.argument", 2)).chatId(commandData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(CallbackData.from(commandData).build())).build();
+            return MessageUtils.sendMessage(messageData).text(i18N.get("common.validation.not.enough.argument", 2))
+                    .replyMarkup(InlineUtils.getNavigationToStart(commandData.getMessageData())).build();
         }
         String locale = command[1];
         if (!telegramBotProperties.getSupportedLocales().contains(locale)) {
             log.error("Failed to execute command - not supported locale {}", locale);
-            return SendMessage.builder().text(i18N.get("command.common.selectlang.validation.not.supported.locale", locale)).chatId(commandData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(CallbackData.from(commandData).build())).build();
+            return MessageUtils.sendMessage(messageData).text(i18N.get("command.common.selectlang.validation.not.supported.locale", locale))
+                    .replyMarkup(InlineUtils.getNavigationToStart(commandData.getMessageData())).build();
         }
-        if (!localizationService.setLocale(commandData.getTelegramId(), locale)) {
-            log.error("Failed to execute command - either failed for user with id {} to change locale to {}", commandData.getTelegramId(), locale);
-            return SendMessage.builder().text(i18N.get("command.common.selectlang.validation.failed.to.change.locale", commandData.getTelegramId(), locale)).chatId(commandData.getChatId())
-                    .replyMarkup(InlineUtils.getNavigationToStart(CallbackData.from(commandData).build())).build();
+        if (!localizationService.setLocale(messageData.getTelegramId(), locale)) {
+            log.error("Failed to execute command - either failed for user with id {} to change locale to {}",
+                    messageData.getTelegramId(),
+                    locale);
+            return MessageUtils.sendMessage(messageData).text(i18N.get("command.common.selectlang.validation.failed.to.change.locale",
+                            messageData.getTelegramId(),
+                            locale))
+                    .replyMarkup(InlineUtils.getNavigationToStart(commandData.getMessageData())).build();
         }
-        log.info("Successfully changed locale for user with id {}", commandData.getTelegramId());
-        setI18N(localizationService.getOrCreate(commandData.getTelegramId()));
-        return SendMessage.builder()
+        log.info("Successfully changed locale for user with id {}", messageData.getTelegramId());
+        setI18N(localizationService.getOrCreate(messageData.getTelegramId()));
+        return MessageUtils.sendMessage(messageData)
                 .text(i18N.get("command.common.selectlang.success", i18N.get(locale)))
-                .chatId(commandData.getChatId())
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package org.Roclh.handlers.callbacks;
 
+import org.Roclh.handlers.messaging.CallbackData;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 

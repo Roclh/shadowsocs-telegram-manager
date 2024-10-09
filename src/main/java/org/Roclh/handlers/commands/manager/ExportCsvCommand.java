@@ -13,7 +13,9 @@ import org.Roclh.data.services.ContractService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -57,10 +59,11 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
 
     @Override
     public PartialBotApiMethod<? extends Serializable> handle(CommandData commandData) {
+        MessageData messageData = commandData.getMessageData();
         log.info("CSV command was requested");
         String[] command = commandData.getCommand().split(" ");
         if (command.length != 2) {
-            return SendMessage.builder().chatId(commandData.getChatId())
+            return MessageUtils.sendMessage(messageData)
                     .text(i18N.get("common.validation.not.enough.argument", 2)).build();
         }
         String fileType = command[1];
@@ -69,7 +72,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
             dataTypes = FileDataTypes.valueOf(fileType.toUpperCase());
         } catch (IllegalArgumentException e) {
             log.error("Invalid file type {}", fileType, e);
-            return SendMessage.builder().chatId(commandData.getChatId())
+            return MessageUtils.sendMessage(messageData)
                     .text(i18N.get("command.manager.export.csv.wrong.argument")).build();
         }
         return switch (dataTypes) {
@@ -77,12 +80,11 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
                 File file = userModelToCsv(userService.getAllUsers());
                 if (file != null){
                     yield SendDocument.builder()
-                            .chatId(commandData.getChatId())
+                            .chatId(messageData.getChatId())
                             .document(new InputFile(file))
                             .build();
                 }
-                yield SendMessage.builder()
-                        .chatId(commandData.getChatId())
+                yield MessageUtils.sendMessage(messageData)
                         .text(i18N.get("command.manager.export.csv.cant.create.file"))
                         .build();
             }
@@ -91,12 +93,11 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
                 File file = bandwidthUserModelToCsv(bandwidthService.getAll());
                 if (file != null){
                     yield SendDocument.builder()
-                            .chatId(commandData.getChatId())
+                            .chatId(messageData.getChatId())
                             .document(new InputFile(file))
                             .build();
                 }
-                yield SendMessage.builder()
-                        .chatId(commandData.getChatId())
+                yield MessageUtils.sendMessage(messageData)
                         .text(i18N.get("command.manager.export.csv.cant.create.file"))
                         .build();
             }
@@ -104,12 +105,11 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
                 File file = contractModelToCsv(contractService.getAllContracts());
                 if (file != null){
                     yield SendDocument.builder()
-                            .chatId(commandData.getChatId())
+                            .chatId(messageData.getChatId())
                             .document(new InputFile(file))
                             .build();
                 }
-                yield SendMessage.builder()
-                        .chatId(commandData.getChatId())
+                yield MessageUtils.sendMessage(messageData)
                         .text(i18N.get("command.manager.export.csv.cant.create.file"))
                         .build();
             }
@@ -117,12 +117,11 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
                 File file = telegramUserModelToCsv(telegramUserService.getUsers());
                 if (file != null){
                     yield SendDocument.builder()
-                            .chatId(commandData.getChatId())
+                            .chatId(messageData.getChatId())
                             .document(new InputFile(file))
                             .build();
                 }
-                yield SendMessage.builder()
-                        .chatId(commandData.getChatId())
+                yield MessageUtils.sendMessage(messageData)
                         .text(i18N.get("command.manager.export.csv.cant.create.file"))
                         .build();
             }
@@ -133,8 +132,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
                 attachments.add(contractModelToCsv(contractService.getAllContracts()));
                 attachments.add(telegramUserModelToCsv(telegramUserService.getUsers()));
                 if (attachments.stream().filter(Objects::nonNull).toList().isEmpty()){
-                    yield SendMessage.builder()
-                            .chatId(commandData.getChatId())
+                    yield MessageUtils.sendMessage(messageData)
                             .text(i18N.get("command.manager.export.csv.cant.create.file"))
                             .build();
                 }
@@ -146,7 +144,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
                 medias.get(medias.size() - 1).setCaption("Take your data, sir.");
                 yield SendMediaGroup.builder()
                         .medias(medias)
-                        .chatId(commandData.getChatId())
+                        .chatId(messageData.getChatId())
                         .build();
             }
         };
@@ -247,6 +245,7 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
             String startDate = model.getStartDate().format(formatter);
             String endDate = model.getEndDate().format(formatter);
             csvStringBuilder.append(id).append(',')
+                    .append(userModelId).append(',')
                     .append(startDate).append(',')
                     .append(endDate).append('\n');
         }

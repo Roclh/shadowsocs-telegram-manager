@@ -3,7 +3,8 @@ package org.Roclh.handlers.commands.telegramUser;
 import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -22,23 +23,19 @@ public class DeleteTelegramUserCommand extends AbstractCommand<SendMessage> {
     public SendMessage handle(CommandData commandData) {
         String[] words = commandData.getCommand().split(" ");
         if (words.length < 2) {
-            return SendMessage.builder().chatId(commandData.getChatId()).text("Failed to execute command - not enough arguments").build();
+            return SendMessage.builder().chatId(commandData.getMessageData().getChatId()).text("Failed to execute command - not enough arguments").build();
         }
         Long id = Long.valueOf(words[1]);
-
-        long chatId = commandData.getChatId();
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatId));
         if(telegramBotProperties.getDefaultManagerId().equals(id)){
-            sendMessage.setText("Can't delete default manager");
-            return sendMessage;
+            return MessageUtils.sendMessage(commandData.getMessageData())
+                    .text("Can't delete default manager")
+                    .build();
         }
         if (telegramUserService.deleteUser(id)) {
-            sendMessage.setText("Telegram user with identifier " + id + " was deleted successfully!");
+            return MessageUtils.sendMessage(commandData.getMessageData()).text("Telegram user with identifier " + id + " was deleted successfully!").build();
         } else {
-            sendMessage.setText("Failed to delete telegram user with identifier " + id);
+            return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to delete telegram user with identifier " + id).build();
         }
-        return sendMessage;
     }
 
     @Override

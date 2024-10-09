@@ -33,9 +33,15 @@ public class BandwidthModel {
     @JoinColumn(name = "user_model_id")
     private UserModel userModel;
 
+    /**
+     * Contains bandwidth for user, null means no bandwidth limitations
+     */
     @Nullable
     private Bandwidth bandwidth;
 
+    public String toFormattedString(){
+        return "\n<u>Bandwidth</u>:" + bandwidth;
+    }
     @Getter
     public enum Bandwidth {
         MB4("4mbit"), MB8("8mbit"), MB16("16mbit"), MB32("32mbit"), MB64("64mbit");

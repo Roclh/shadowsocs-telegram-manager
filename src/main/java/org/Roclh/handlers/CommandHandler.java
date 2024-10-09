@@ -3,8 +3,12 @@ package org.Roclh.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.commands.Command;
-import org.Roclh.handlers.commands.CommandData;
-import org.Roclh.handlers.commands.common.*;
+import org.Roclh.handlers.commands.common.GetLinkCommand;
+import org.Roclh.handlers.commands.common.HelpCommand;
+import org.Roclh.handlers.commands.common.RegisterCommand;
+import org.Roclh.handlers.commands.common.SelectLangCommand;
+import org.Roclh.handlers.commands.common.StartCommand;
+import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.commands.manager.ExportCsvCommand;
 import org.Roclh.handlers.commands.sh.ScreenListCommand;
 import org.Roclh.handlers.commands.telegramUser.DeleteTelegramUserCommand;
@@ -18,6 +22,7 @@ import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
 import org.Roclh.handlers.commands.user.DeleteUserCommand;
 import org.Roclh.handlers.commands.user.LimitFlowCommand;
 import org.Roclh.handlers.commands.user.ListCommand;
+import org.Roclh.handlers.messaging.MessageData;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.lang.Nullable;
@@ -87,19 +92,20 @@ public class CommandHandler {
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCommands(CommandData commandData) {
+        MessageData messageData = commandData.getMessageData();
         String messageText = commandData.getCommand();
         String command = messageText.split(" ")[0];
-        long chatId = commandData.getChatId();
-        log.info("Received a message from user {} from a chat with id:\"{}\", containing message \"{}\"", commandData.getTelegramName(), chatId, messageText);
+        long chatId = messageData.getChatId();
+        log.info("Received a message from user {} from a chat with id:\"{}\", containing message \"{}\"", messageData.getTelegramName(), chatId, messageText);
 
         if (command.startsWith("/")) {
             command = command.substring(1);
         }
         String finalCommand = command;
         Command<? extends PartialBotApiMethod<?>> commandHandler = getCommand(finalCommand);
-        if (commandHandler != null && commandHandler.isAllowed(commandData.getTelegramId())) {
+        if (commandHandler != null && commandHandler.isAllowed(messageData.getTelegramId())) {
             log.info("Recognized command {}, starting handling", command);
-            commandHandler.setI18N(commandData.getLocale());
+            commandHandler.setI18N(messageData.getLocale());
             return commandHandler.handle(commandData);
         } else {
             return new SendMessage(String.valueOf(chatId), "Unknown command");

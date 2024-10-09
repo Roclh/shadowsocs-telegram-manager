@@ -1,5 +1,7 @@
 package org.Roclh.sh;
 
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 
@@ -10,10 +12,17 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class ScriptRunner {
@@ -21,6 +30,7 @@ public class ScriptRunner {
     public static boolean isShScriptExists(String scriptPath) {
         return Files.exists(Path.of(scriptPath));
     }
+
     public static void createShScript(String scriptContent, String scriptPath) {
         try (FileWriter fileWriter = new FileWriter(scriptPath)) {
             fileWriter.write(scriptContent);
@@ -30,77 +40,82 @@ public class ScriptRunner {
             throw new RuntimeException(e);
         }
     }
+
     public static boolean runCommand(String[] command) {
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        log.info("Executing command {}, command with args: {}", command[0], command);
-        try {
-            Process p = processBuilder.start().onExit().get();
-
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(p.getInputStream()));
-            stdInput.lines().forEach(log::info);
-
-            BufferedReader stdError = new BufferedReader(new
-                    InputStreamReader(p.getErrorStream()));
-            stdError.lines().forEach(log::info);
-            return true;
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            log.error("Failed to execute script " + String.join(" ", command), e);
-            return false;
-        }
+        return runCommandWithResult(command, (output) -> true, () -> false);
     }
 
 
     public static boolean runCommand(String[] command, Predicate<String> successCondition) {
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        log.info("Executing command {}, command with args: {}", command[0], command);
-        try {
-            Process p = processBuilder.start().onExit().get(10, TimeUnit.SECONDS);
-            StringBuilder output = new StringBuilder();
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(p.getInputStream()));
-            stdInput.lines().forEach(line->{
-                log.info(line);
-                output.append(line);
-            });
-
-            BufferedReader stdError = new BufferedReader(new
-                    InputStreamReader(p.getErrorStream()));
-            stdError.lines().forEach(line->{
-                log.info(line);
-                output.append(line);
-            });
-            return successCondition.test(output.toString());
-        } catch (IOException | ExecutionException | InterruptedException | TimeoutException e) {
-            log.error("Failed to execute script " + String.join(" ", command), e);
-            return false;
-        }
+        return runCommandWithResult(command, successCondition::test, () -> false);
     }
 
     @Nullable
-    public static String runCommandWithResult(String[] command){
+    public static String runCommandWithResult(String[] command) {
+        return runCommandWithResult(command, (output) -> output);
+    }
+
+    @Nullable
+    public static <T> T runCommandWithResult(String[] command, Function<String, T> resultProcessor) {
+        return runCommandWithResult(command, resultProcessor, () -> null);
+    }
+
+    public static <T> T runCommandWithResult(String[] command, Function<String, T> resultProcessor, Supplier<T> fallbackProvider) {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         log.info("Executing command {}, command with args: {}", command[0], command);
         try {
-            Process p = processBuilder.start().onExit().get(10, TimeUnit.SECONDS);
+            Process p = processBuilder.start()
+                    .onExit().get(10, TimeUnit.SECONDS);
             StringBuilder output = new StringBuilder();
             BufferedReader stdInput = new BufferedReader(new
                     InputStreamReader(p.getInputStream()));
-            stdInput.lines().forEach(line->{
+            stdInput.lines().forEach(line -> {
                 log.info(line);
                 output.append(line);
             });
 
             BufferedReader stdError = new BufferedReader(new
                     InputStreamReader(p.getErrorStream()));
-            stdError.lines().forEach(line->{
+            stdError.lines().forEach(line -> {
                 log.info(line);
                 output.append(line);
             });
-            return output.toString();
+            return resultProcessor.apply(output.toString());
         } catch (IOException | ExecutionException | InterruptedException | TimeoutException e) {
             log.error("Failed to execute script " + String.join(" ", command), e);
-            return null;
+            return fallbackProvider.get();
+        }
+    }
+
+    @Getter
+    public class CommandOutput {
+        SortedMap<Long, String> stdOutputLines = new TreeMap<>();
+        SortedMap<Long, String> stdErrorLines = new TreeMap<>();
+
+        public void appendOutput(@NonNull String line) {
+            this.stdOutputLines.put(System.currentTimeMillis(), line);
+        }
+
+        public void appendError(@NonNull String line) {
+            this.stdErrorLines.put(System.currentTimeMillis(), line);
+        }
+
+        public String getOutput() {
+            return String.join("\n", this.stdOutputLines.values());
+        }
+
+        public String getError() {
+            return String.join("\n", this.stdErrorLines.values());
+        }
+
+        public String get(){
+            return String.join("\n",
+                    Stream.concat(
+                            stdOutputLines.entrySet().stream(),
+                            stdErrorLines.entrySet().stream())
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                            .values()
+                    );
         }
     }
 }

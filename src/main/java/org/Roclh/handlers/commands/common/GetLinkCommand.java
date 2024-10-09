@@ -7,7 +7,8 @@ import org.Roclh.data.services.ServerSharingService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
-import org.Roclh.handlers.commands.CommandData;
+import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -36,42 +37,40 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
 
     @Override
     public PartialBotApiMethod<? extends Serializable> handle(CommandData commandData) {
-        SendPhoto sendPhoto = new SendPhoto();
-        SendMessage sendMessage = new SendMessage();
-        sendPhoto.setChatId(commandData.getChatId());
-        sendMessage.setChatId(commandData.getChatId());
-        Long telegramId = commandData.getTelegramId();
+        SendPhoto.SendPhotoBuilder sendPhoto = MessageUtils.sendPhoto(commandData.getMessageData());
+        SendMessage.SendMessageBuilder sendMessage = MessageUtils.sendMessage(commandData.getMessageData());
+        Long telegramId = commandData.getMessageData().getTelegramId();
 
 
         UserModel userModel = userService.getUser(telegramId).orElse(null);
         if (userModel == null || !userModel.isAdded()) {
             log.error("Failed to generate link - user with id {} not exists or is not added", telegramId);
-            sendMessage.setText(i18N.get("command.common.getlink.validation.failed.not.exists", telegramId));
-            return sendMessage;
+            sendMessage.text(i18N.get("command.common.getlink.validation.failed.not.exists", telegramId));
+            return sendMessage.build();
         }
         String uri = serverSharingService.generateServerUrl(userModel);
         if (uri == null) {
             log.error("Failed to generate link - failed to generate server url");
-            sendMessage.setText(i18N.get("command.common.getlink.validation.failed.generate.url"));
-            return sendMessage;
+            sendMessage.text(i18N.get("command.common.getlink.validation.failed.generate.url"));
+            return sendMessage.build();
         }
         BufferedImage qrCode = serverSharingService.generateServerUrlQrCode(userModel);
         if (qrCode == null) {
             log.error("Failed to generate link - failed to generate server QR code");
-            sendMessage.setText(i18N.get("command.common.getlink.validation.failed.generate.qr"));
-            return sendMessage;
+            sendMessage.text(i18N.get("command.common.getlink.validation.failed.generate.qr"));
+            return sendMessage.build();
         }
-        sendPhoto.setCaption(uri);
+        sendPhoto.caption(uri);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
             ImageIO.write(qrCode, "jpeg", os);
         } catch (IOException e) {
             log.error("Failed to generate link - failed to parse qr code to output stream", e);
-            sendMessage.setText(i18N.get("command.common.getlink.validation.failed.parse.qr"));
-            return sendMessage;
+            sendMessage.text(i18N.get("command.common.getlink.validation.failed.parse.qr"));
+            return sendMessage.build();
         }
-        sendPhoto.setPhoto(new InputFile().setMedia(new ByteArrayInputStream(os.toByteArray()), "QR.jpeg"));
-        return sendPhoto;
+        sendPhoto.photo(new InputFile().setMedia(new ByteArrayInputStream(os.toByteArray()), "QR.jpeg"));
+        return sendPhoto.build();
     }
 
 
