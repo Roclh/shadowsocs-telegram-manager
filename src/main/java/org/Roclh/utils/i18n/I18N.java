@@ -1,6 +1,7 @@
 package org.Roclh.utils.i18n;
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.handlers.messaging.MessageData;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -56,6 +57,9 @@ public class I18N {
         this.prefix = prefix;
     }
 
+    public static I18N from(MessageData messageData){
+        return new I18N(messageData.getLocale());
+    }
     public static I18N from(Locale locale) {
         return new I18N(locale);
     }

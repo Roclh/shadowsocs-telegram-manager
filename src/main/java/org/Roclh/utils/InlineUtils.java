@@ -130,7 +130,7 @@ public class InlineUtils {
      */
     public static InlineKeyboardMarkup getDefaultNavigationMarkup(@NonNull CallbackData callbackData) {
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
-        return getDefaultNavigationMarkup(i18N.get(EmojiConstants.HOUSE + "callback.default.navigation.data.back"), callbackData.getCallbackData());
+        return getDefaultNavigationMarkup(EmojiConstants.HOUSE + i18N.get("callback.default.navigation.data.back"), callbackData.getCallbackData());
     }
 
     /**

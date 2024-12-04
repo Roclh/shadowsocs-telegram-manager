@@ -142,7 +142,8 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
         );
     }
 
-    private InlineKeyboardMarkup getSelectRoleMarkup(CallbackData callbackData) {
+    @Override
+    protected InlineKeyboardMarkup getSelectRoleMarkup(CallbackData callbackData) {
         MessageData messageData = callbackData.getMessageData();
         String[] command = callbackData.getCallbackData().split(" ");
         Assert.isTrue(command.length >= 3, "Select role expects to have at least command and 2 arguments");
@@ -153,7 +154,7 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
                         .collect(Collectors.toMap(Role::name, Role::name)),
                 (data) -> callbackData.getCallbackData() + " " + data,
                 messageData.getLocale(),
-                () -> callbackData.getCallbackData().substring(0, callbackData.getCallbackData().lastIndexOf(" "))
+                () -> trimLastWord(callbackData.getCallbackData())
         );
     }
 

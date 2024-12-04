@@ -24,16 +24,22 @@ public class ScreenListCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public SendMessage handle(CommandData commandData) {
+        String message = screenListScript.execute()
+                .stream().map(line -> telegramUserService.getUser(Long.valueOf(line.split(":")[1])).orElse(null))
+                .map((userModel) -> {
+                    if (userModel == null) {
+                        return "Unknown screen\n";
+                    }
+                    return userModel.getTelegramId() + ":" + userModel.getTelegramName();
+                })
+                .collect(Collectors.joining("\n"));
+        if(message.isEmpty()){
+            return MessageUtils.sendMessage(commandData.getMessageData())
+                    .text("There is no active screens now")
+                    .build();
+        }
         return MessageUtils.sendMessage(commandData.getMessageData())
-                .text(screenListScript.execute()
-                        .stream().map(line -> telegramUserService.getUser(Long.valueOf(line.split(":")[1])).orElse(null))
-                        .map((userModel) -> {
-                            if (userModel == null) {
-                                return "Unknown screen\n";
-                            }
-                            return userModel.getTelegramId() + ":" + userModel.getTelegramName();
-                        })
-                        .collect(Collectors.joining("\n")))
+                .text(message)
                 .build();
     }
 

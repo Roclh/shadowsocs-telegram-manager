@@ -3,6 +3,7 @@ package org.Roclh.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.callbacks.Callback;
+import org.Roclh.handlers.callbacks.common.GuideCallback;
 import org.Roclh.handlers.callbacks.manager.ManagerCallback;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.callbacks.common.DefaultCallback;
@@ -20,6 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CallbackHandler {
     private final String DEFAULT_CALLBACK_KEY;
-    private static final Map<String, Callback<? extends PartialBotApiMethod<? extends Serializable>>> callbacks = new HashMap<>();
+    private static final Map<String, Callback<? extends PartialBotApiMethod<? extends Serializable>>> callbacks = new LinkedHashMap<>();
     private final LocalizationService localizationService;
 
     public CallbackHandler(DefaultCallback defaultCallback,
@@ -40,7 +42,8 @@ public class CallbackHandler {
                            GetQrCallback getQrCallback,
                            SelectLangCallback selectLangCallback,
                            ManagerCallback managerCallback,
-                           LocalizationService localizationService) {
+                           LocalizationService localizationService,
+                           GuideCallback guideCallback) {
         DEFAULT_CALLBACK_KEY = defaultCallback.getName();
         this.localizationService = localizationService;
         callbacks.put(DEFAULT_CALLBACK_KEY, defaultCallback);
@@ -51,6 +54,7 @@ public class CallbackHandler {
         callbacks.put(getQrCallback.getName(), getQrCallback);
         callbacks.put(selectLangCallback.getName(), selectLangCallback);
         callbacks.put(managerCallback.getName(), managerCallback);
+        callbacks.put(guideCallback.getName(), guideCallback);
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCallbacks(Update update) {

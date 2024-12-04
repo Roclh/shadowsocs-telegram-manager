@@ -10,6 +10,6 @@ public class EmojiConstants {
     public static final String BULB = "\uD83D\uDCA1";
     public static final String CLIPBOARD = "\uD83D\uDCCB";
     public static final String QUESTIONMARK = "❓";
-    public static final String GLOBE = "\uD83C\uDF0F\n";
+    public static final String GLOBE = "\uD83C\uDF0F";
     public static final String ALIEN = "\uD83D\uDC7D";
 }

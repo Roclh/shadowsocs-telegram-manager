@@ -4,12 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.commands.Command;
 import org.Roclh.handlers.commands.common.GetLinkCommand;
+import org.Roclh.handlers.commands.common.GuideCommand;
 import org.Roclh.handlers.commands.common.HelpCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
 import org.Roclh.handlers.commands.common.SelectLangCommand;
 import org.Roclh.handlers.commands.common.StartCommand;
-import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.commands.manager.ExportCsvCommand;
+import org.Roclh.handlers.commands.manager.SendNotificationCommand;
 import org.Roclh.handlers.commands.sh.ScreenListCommand;
 import org.Roclh.handlers.commands.telegramUser.DeleteTelegramUserCommand;
 import org.Roclh.handlers.commands.telegramUser.ListTelegramUserCommand;
@@ -22,6 +23,7 @@ import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
 import org.Roclh.handlers.commands.user.DeleteUserCommand;
 import org.Roclh.handlers.commands.user.LimitFlowCommand;
 import org.Roclh.handlers.commands.user.ListCommand;
+import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -32,7 +34,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,7 +46,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CommandHandler {
 
-    private static final Map<List<String>, Command<? extends PartialBotApiMethod<?>>> commands = new HashMap<>();
+    private static final Map<List<String>, Command<? extends PartialBotApiMethod<?>>> commands = new LinkedHashMap<>();
     private final LocalizationService localizationService;
 
     public CommandHandler(StartCommand startCommand,
@@ -65,7 +67,9 @@ public class CommandHandler {
                           SelectLangCommand selectLangCommand,
                           LocalizationService localizationService,
                           GetLinkCommand getLinkCommand,
-                          ExportCsvCommand exportCsvCommand) {
+                          ExportCsvCommand exportCsvCommand,
+                          SendNotificationCommand sendNotificationCommand,
+                          GuideCommand guideCommand) {
         this.localizationService = localizationService;
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(helpCommand.getCommandNames(), helpCommand);
@@ -85,6 +89,8 @@ public class CommandHandler {
         commands.put(getLinkCommand.getCommandNames(), getLinkCommand);
         commands.put(setRoleCommand.getCommandNames(), setRoleCommand);
         commands.put(selectLangCommand.getCommandNames(), selectLangCommand);
+        commands.put(sendNotificationCommand.getCommandNames(), sendNotificationCommand);
+        commands.put(guideCommand.getCommandNames(), guideCommand);
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCommands(Update update) {

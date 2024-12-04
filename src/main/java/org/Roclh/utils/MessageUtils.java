@@ -1,6 +1,7 @@
 package org.Roclh.utils;
 
 import lombok.NonNull;
+import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.handlers.messaging.MessageData;
 import org.springframework.util.Assert;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -15,6 +16,15 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
  */
 public class MessageUtils {
 
+
+    @NonNull
+    public static SendMessage.SendMessageBuilder sendMessage(@NonNull TelegramUserModel userModel){
+        Assert.notNull(userModel, "User model can't be null!");
+        Assert.notNull(userModel.getChatId(), "Telegram user chat id can't be null!");
+        return SendMessage.builder()
+                .chatId(userModel.getChatId())
+                .parseMode("HTML");
+    }
     @NonNull
     public static SendMessage.SendMessageBuilder sendMessage(@NonNull MessageData messageData){
         Assert.notNull(messageData, "Message data can't be null!");

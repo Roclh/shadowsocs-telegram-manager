@@ -34,4 +34,9 @@ public class LocalizationService {
         }
         return false;
     }
+
+    public boolean matchesLang(@NonNull Long telegramId, String locale) {
+        return localizationRepository.findById(telegramId)
+                .map(localizationModel -> localizationModel.getLocale().equals(locale)).orElse(false);
+    }
 }

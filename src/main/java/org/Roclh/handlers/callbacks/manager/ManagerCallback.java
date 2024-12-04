@@ -2,6 +2,8 @@ package org.Roclh.handlers.callbacks.manager;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.bot.TelegramBot;
+import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.Role;
 import org.Roclh.data.services.TelegramUserService;
@@ -23,7 +25,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,10 +37,31 @@ public class ManagerCallback extends AbstractCallback<PartialBotApiMethod<? exte
     private final CommandHandler commandHandler;
     private final TelegramUserService telegramUserService;
     private final TelegramBotStorage telegramBotStorage;
+    private final TelegramBotProperties telegramBotProperties;
 
     @Override
     public PartialBotApiMethod<? extends Serializable> apply(CallbackData callbackData) {
         int commandLength = callbackData.getCallbackData().split(" ").length;
+        if (commandLength >= 4 && callbackData.getCallbackData().split(" ")[1].equals("notify")) {
+            TelegramBot.waitSyncUpdate(callbackData.getMessageData().getTelegramId(), (commandData) -> {
+                callbackData.setCallbackData(callbackData.getCallbackData() + " " + commandData.getCommand());
+                String[] words = callbackData.getCallbackData().split(" ");
+                if (Arrays.copyOfRange(words, 4, words.length).length == 0) {
+                    return MessageUtils.sendMessage(callbackData.getMessageData())
+                            .text(i18N.get("callback.manager.notify.user.message.validation"))
+                            .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                            .build();
+                }
+                return MessageUtils.sendMessage(callbackData.getMessageData())
+                        .text(getSendMessageCommandResult(callbackData))
+                        .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                        .build();
+            });
+            return MessageUtils.editMessage(callbackData.getMessageData())
+                    .text(i18N.get("callback.manager.notify.user.write.message"))
+                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), trimLastWord(callbackData.getCallbackData())))
+                    .build();
+        }
         return switch (commandLength) {
             case 1 -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.manager.select.command"))
@@ -72,9 +95,10 @@ public class ManagerCallback extends AbstractCallback<PartialBotApiMethod<? exte
     }
 
     private InlineKeyboardMarkup getSelectCommandMarkup(CallbackData callbackData) {
-        Map<String, String> map = new HashMap<>();
-        map.put(i18N.get("callback.manager.inline.button.export.csv"), "csv");
+        Map<String, String> map = new LinkedHashMap<>();
         map.put(EmojiConstants.CLIPBOARD + i18N.get("callback.manager.inline.button.screen.list"), "screen");
+        map.put(i18N.get("callback.manager.inline.button.notify.user"), "notify");
+        map.put(i18N.get("callback.manager.inline.button.export.csv"), "csv");
         return InlineUtils.getListNavigationMarkup(map,
                 (data) -> callbackData.getCallbackData() + " " + data,
                 callbackData.getMessageData().getLocale(),
@@ -89,6 +113,10 @@ public class ManagerCallback extends AbstractCallback<PartialBotApiMethod<? exte
             case "csv" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.manager.select.data.type"))
                     .replyMarkup(getSelectCsvDatabaseTypeMarkup(callbackData))
+                    .build();
+            case "notify" -> MessageUtils.editMessage(callbackData.getMessageData())
+                    .text(i18N.get("callback.manager.notify.user.select.role"))
+                    .replyMarkup(getSelectRoleMarkup(callbackData))
                     .build();
             case "screen" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(getSendMessageCommandResult(callbackData))
@@ -105,6 +133,10 @@ public class ManagerCallback extends AbstractCallback<PartialBotApiMethod<? exte
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
             case "csv" -> getExportCsvCommandResult(callbackData);
+            case "notify" -> MessageUtils.editMessage(callbackData.getMessageData())
+                    .text(i18N.get("callback.manager.notify.user.select.lang"))
+                    .replyMarkup(getSelectLangMarkup(callbackData, telegramBotProperties.getSupportedLocales()))
+                    .build();
             default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.default.navigation.data.error.parse.one.argument"))
                     .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))

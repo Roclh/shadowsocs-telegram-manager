@@ -31,8 +31,8 @@ public class SelectLangCallback extends AbstractCallback<EditMessageText> {
         int commandLength = callbackData.getCallbackData().split(" ").length;
         return switch (commandLength) {
             case 1 -> MessageUtils.editMessage(callbackData.getMessageData())
-                    .text(EmojiConstants.GLOBE + i18N.get("callback.common.selectlang.select.lang.message"))
-                    .replyMarkup(getSelectLangMarkup(callbackData))
+                    .text(i18N.get("callback.common.selectlang.select.lang.message"))
+                    .replyMarkup(getSelectLangMarkup(callbackData, botProperties.getSupportedLocales()))
                     .build();
             case 2 -> handleOneArgumentCommand(callbackData);
             default -> MessageUtils.editMessage(callbackData.getMessageData())
@@ -50,7 +50,7 @@ public class SelectLangCallback extends AbstractCallback<EditMessageText> {
     @Override
     public List<InlineKeyboardButton> getCallbackButtonRow() {
         return List.of(InlineKeyboardButton.builder()
-                .text(i18N.get("callback.common.selectlang.select.button.inline"))
+                .text(EmojiConstants.GLOBE + i18N.get("callback.common.selectlang.select.button.inline"))
                 .callbackData(getName())
                 .build()
         );
@@ -59,16 +59,6 @@ public class SelectLangCallback extends AbstractCallback<EditMessageText> {
     @Override
     public boolean isAllowed(Long telegramId) {
         return true;
-    }
-
-    private InlineKeyboardMarkup getSelectLangMarkup(CallbackData callbackData) {
-        return InlineUtils.getListNavigationMarkup(botProperties
-                        .getSupportedLocales()
-                        .stream().collect(Collectors.toMap(lang -> i18N.get(lang), lang -> lang)),
-                (data) -> callbackData.getCallbackData() + " " + data,
-                callbackData.getMessageData().getLocale(),
-                () -> "start"
-        );
     }
 
     private EditMessageText handleOneArgumentCommand(CallbackData callbackData) {

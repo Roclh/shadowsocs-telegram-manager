@@ -3,7 +3,9 @@ package org.Roclh.handlers.messaging;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
+import org.Roclh.data.entities.TelegramUserModel;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import java.util.Locale;
 
@@ -20,4 +22,17 @@ public class MessageData {
     private Integer messageId;
     @NonNull
     private Locale locale;
+
+    @NonNull
+    public static MessageData fromUser(@NonNull TelegramUserModel telegramUserModel, @NonNull Locale locale){
+        Assert.notNull(telegramUserModel.getTelegramName(), "Telegram name can't be null!");
+        Assert.notNull(telegramUserModel.getChatId(), "Chat id can't be null!");
+        return builder()
+                .telegramName(telegramUserModel.getTelegramName())
+                .telegramId(telegramUserModel.getTelegramId())
+                .chatId(telegramUserModel.getChatId())
+                .locale(locale)
+                .build();
+
+    }
 }
