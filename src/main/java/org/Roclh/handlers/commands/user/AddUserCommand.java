@@ -9,6 +9,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
 import org.Roclh.ss.ShadowsocksProperties;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
@@ -24,13 +25,15 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
     private final TelegramUserService telegramUserService;
     private final TelegramBotStorage telegramBotStorage;
     private final ShadowsocksProperties shadowsocksProperties;
+    private final EnableDefaultShadowsocksServerScript enableScript;
 
-    public AddUserCommand(TelegramUserService telegramUserService, UserService userManager, TelegramUserService telegramUserService1, TelegramBotStorage telegramBotStorage, ShadowsocksProperties shadowsocksProperties) {
+    public AddUserCommand(TelegramUserService telegramUserService, UserService userManager, TelegramUserService telegramUserService1, TelegramBotStorage telegramBotStorage, ShadowsocksProperties shadowsocksProperties, EnableDefaultShadowsocksServerScript enableScript) {
         super(telegramUserService);
         this.userManager = userManager;
         this.telegramUserService = telegramUserService1;
         this.telegramBotStorage = telegramBotStorage;
         this.shadowsocksProperties = shadowsocksProperties;
+        this.enableScript = enableScript;
     }
 
     @Override
@@ -40,7 +43,7 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
         if (words.length < 4) {
             return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to execute command - not enough arguments").build();
         }
-        if(words.length > 4){
+        if (words.length > 4) {
             return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to execute command - password should not contain spaces").build();
         }
         long chatId = messageData.getChatId();
@@ -70,12 +73,12 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
                 .password(password)
                 .isAdded(true)
                 .build();
-        if (!userManager.executeShScriptAddUser(userModel)) {
+        if (!enableScript.execute(userModel)) {
             log.error("Failed to add user - failed to execute sh script for user with id {}", telegramId);
             sendMessage.setText("Failed to add user - failed to execute sh script for user with id" + telegramId);
             return sendMessage;
         }
-        if(!userManager.saveUser(userModel)){
+        if (!userManager.saveUser(userModel)) {
             log.error("Failed to add user - failed to save user model with id {}", telegramId);
             sendMessage.setText("Failed to add user - failed to save user model with id " + telegramId);
             return sendMessage;
@@ -83,9 +86,9 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
         if (userModel.getUserModel().getChatId() != null) {
             telegramBotStorage.getTelegramBot().sendMessage(
                     MessageUtils.sendMessage(commandData.getMessageData())
-                    .text(i18N.get("command.common.adduserwithoutpassword.granted.access"))
-                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
-                    .build());
+                            .text(i18N.get("command.common.adduserwithoutpassword.granted.access"))
+                            .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
+                            .build());
         }
         sendMessage.setText("User with id " + telegramId + " was added successfully!");
         return sendMessage;
@@ -100,4 +103,5 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
     public List<String> getCommandNames() {
         return List.of("adduser", "add", "ad", "addpwd");
     }
+
 }

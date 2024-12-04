@@ -9,6 +9,7 @@ import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.i18n.EmojiConstants;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -30,7 +31,7 @@ public class SelectLangCallback extends AbstractCallback<EditMessageText> {
         int commandLength = callbackData.getCallbackData().split(" ").length;
         return switch (commandLength) {
             case 1 -> MessageUtils.editMessage(callbackData.getMessageData())
-                    .text(i18N.get("callback.common.selectlang.select.lang.message"))
+                    .text(EmojiConstants.GLOBE + i18N.get("callback.common.selectlang.select.lang.message"))
                     .replyMarkup(getSelectLangMarkup(callbackData))
                     .build();
             case 2 -> handleOneArgumentCommand(callbackData);

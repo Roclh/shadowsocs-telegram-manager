@@ -9,6 +9,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.sh.scripts.CreateBandwidthRuleScript;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -22,11 +23,13 @@ import java.util.Optional;
 public class LimitFlowCommand extends AbstractCommand<SendMessage> {
     private final UserService userService;
     private final BandwidthService bandwidthService;
+    private final CreateBandwidthRuleScript createBandwidthRuleScript;
 
-    public LimitFlowCommand(TelegramUserService telegramUserService, UserService userService, BandwidthService bandwidthService) {
+    public LimitFlowCommand(TelegramUserService telegramUserService, UserService userService, BandwidthService bandwidthService, CreateBandwidthRuleScript createBandwidthRuleScript) {
         super(telegramUserService);
         this.userService = userService;
         this.bandwidthService = bandwidthService;
+        this.createBandwidthRuleScript = createBandwidthRuleScript;
     }
 
     @Override
@@ -59,7 +62,7 @@ public class LimitFlowCommand extends AbstractCommand<SendMessage> {
                 .userModel(userModel.get())
                 .bandwidth(bandwidth)
                 .build();
-        if (!bandwidthService.executeShScriptSetBandwidthRule(bandwidthModel)){
+        if (!createBandwidthRuleScript.execute(bandwidthModel)){
             log.error("Failed to set a bandwidth rule - failed to execute sh script for id {}", telegramId);
             sendMessage.setText("Failed to set a bandwidth rule - failed to add or create a rule for id " + telegramId);
             return sendMessage;

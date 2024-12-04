@@ -27,8 +27,6 @@ public class ChangeUserPasswordCommandTest extends CommonUserCommandTest {
     public void init() {
         super.init();
         Mockito.when(userService.saveUser(any(UserModel.class))).thenReturn(true);
-        Mockito.when(userService.changeUserEnabled(any(Long.class), any(Boolean.class))).thenReturn(true);
-        Mockito.when(userService.executeShScriptChangePassword(any(UserModel.class))).thenReturn(true);
     }
 
     @Test
@@ -60,7 +58,6 @@ public class ChangeUserPasswordCommandTest extends CommonUserCommandTest {
 
     @Test
     public void whenShScriptReturnFalse_thenReturnWithoutChanges() {
-        Mockito.when(userService.executeShScriptChangePassword(any(UserModel.class))).thenReturn(false);
         Mockito.when(commandData.getCommand()).thenReturn("chpwdw 3 qwertyui");
         List<UserModel> copy = List.copyOf(users);
         SendMessage sendMessage = changeUserPasswordCommand.handle(commandData);

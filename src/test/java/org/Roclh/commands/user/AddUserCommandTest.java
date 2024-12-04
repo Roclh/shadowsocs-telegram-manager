@@ -31,7 +31,6 @@ public class AddUserCommandTest extends CommonUserCommandTest {
     public void init() {
         super.init();
         Mockito.when(userService.saveUser(any(UserModel.class))).thenReturn(true);
-        Mockito.when(userService.executeShScriptAddUser(any())).thenReturn(true);
     }
 
     @Test
@@ -79,7 +78,6 @@ public class AddUserCommandTest extends CommonUserCommandTest {
     @Test
     public void whenAddScriptWasNotSuccessfull_thenReturnWithoutChanges() {
         Mockito.when(commandData.getCommand()).thenReturn("add 3 10000 qwertyui");
-        Mockito.when(userService.executeShScriptAddUser(any())).thenReturn(false);
         List<UserModel> copy = List.copyOf(users);
         SendMessage sendMessage = addUserCommand.handle(commandData);
         commonSendMessageValidation(sendMessage, "User with id 3 was not added! Either it exists or failed to add");

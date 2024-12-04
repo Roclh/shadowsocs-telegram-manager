@@ -6,6 +6,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,10 +17,12 @@ import java.util.List;
 @Slf4j
 public class DeleteUserCommand extends AbstractCommand<SendMessage> {
     private final UserService userService;
+    private final DisableShadowsocksServerScript disableScript;
 
-    public DeleteUserCommand(TelegramUserService telegramUserService, UserService userService) {
+    public DeleteUserCommand(TelegramUserService telegramUserService, UserService userService, DisableShadowsocksServerScript disableScript) {
         super(telegramUserService);
         this.userService = userService;
+        this.disableScript = disableScript;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class DeleteUserCommand extends AbstractCommand<SendMessage> {
         long chatId = messageData.getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        if (!userService.getUser(id).map(userService::executeShScriptDisableUser).orElse(false)) {
+        if (!userService.getUser(id).map(disableScript::execute).orElse(false)) {
             log.error("Failed to delete user with id {}, failed to stop screen", id);
             sendMessage.setText("Failed to delete user with id " + id + ", failed to stop screen");
             return sendMessage;
@@ -48,6 +51,7 @@ public class DeleteUserCommand extends AbstractCommand<SendMessage> {
         log.info("User with identifier {} was deleted successfully!", id);
         sendMessage.setText("User with identifier " + id + " was deleted successfully!");
         return sendMessage;
+
     }
 
     @Override

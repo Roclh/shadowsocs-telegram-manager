@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.utils.i18n.EmojiConstants;
 import org.Roclh.utils.i18n.I18N;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -129,7 +130,7 @@ public class InlineUtils {
      */
     public static InlineKeyboardMarkup getDefaultNavigationMarkup(@NonNull CallbackData callbackData) {
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
-        return getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), callbackData.getCallbackData());
+        return getDefaultNavigationMarkup(i18N.get(EmojiConstants.HOUSE + "callback.default.navigation.data.back"), callbackData.getCallbackData());
     }
 
     /**
@@ -141,7 +142,7 @@ public class InlineUtils {
      */
     public static InlineKeyboardMarkup getNavigationToStart(@NonNull MessageData messageData) {
         I18N i18N = I18N.from(messageData.getLocale());
-        return getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), "start");
+        return getDefaultNavigationMarkup(EmojiConstants.HOUSE + i18N.get("callback.default.navigation.data.back"), "start");
     }
 
     public static InlineKeyboardMarkup getNavigationToPreviousCommand(@NonNull CallbackData callbackData){

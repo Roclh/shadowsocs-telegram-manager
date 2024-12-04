@@ -14,4 +14,8 @@ public abstract class AbstractCallback<T extends PartialBotApiMethod<? extends S
         i18N = I18N.from(locale);
         return this;
     }
+
+    protected String trimLastWord(String data) {
+        return data.substring(0, data.lastIndexOf(" "));
+    }
 }

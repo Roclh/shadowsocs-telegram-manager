@@ -3,6 +3,7 @@ package org.Roclh.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.callbacks.Callback;
+import org.Roclh.handlers.callbacks.manager.ManagerCallback;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.callbacks.common.DefaultCallback;
 import org.Roclh.handlers.callbacks.common.GetQrCallback;
@@ -38,6 +39,7 @@ public class CallbackHandler {
                            TelegramUserCallback telegramUserCallback,
                            GetQrCallback getQrCallback,
                            SelectLangCallback selectLangCallback,
+                           ManagerCallback managerCallback,
                            LocalizationService localizationService) {
         DEFAULT_CALLBACK_KEY = defaultCallback.getName();
         this.localizationService = localizationService;
@@ -48,6 +50,7 @@ public class CallbackHandler {
         callbacks.put(helpCallback.getName(), helpCallback);
         callbacks.put(getQrCallback.getName(), getQrCallback);
         callbacks.put(selectLangCallback.getName(), selectLangCallback);
+        callbacks.put(managerCallback.getName(), managerCallback);
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCallbacks(Update update) {

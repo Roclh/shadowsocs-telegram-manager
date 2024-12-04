@@ -9,6 +9,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.sh.scripts.DeleteBandwidthRuleScript;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -20,10 +21,12 @@ import java.util.List;
 public class DeleteFlowLimitCommand extends AbstractCommand<SendMessage> {
     private final BandwidthService bandwidthService;
     private final UserService userService;
-    public DeleteFlowLimitCommand(TelegramUserService telegramUserService, BandwidthService bandwidthService, UserService userService) {
+    private final DeleteBandwidthRuleScript deleteBandwidthRuleScript;
+    public DeleteFlowLimitCommand(TelegramUserService telegramUserService, BandwidthService bandwidthService, UserService userService, DeleteBandwidthRuleScript deleteBandwidthRuleScript) {
         super(telegramUserService);
         this.bandwidthService = bandwidthService;
         this.userService = userService;
+        this.deleteBandwidthRuleScript = deleteBandwidthRuleScript;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class DeleteFlowLimitCommand extends AbstractCommand<SendMessage> {
             sendMessage.setText("Failed to delete flow limit - bandwidth for user with id " + telegramId + " does not exists");
             return sendMessage;
         }
-        if(!bandwidthService.executeShScriptDeleteBandwidthRule(bandwidthModel)){
+        if(!deleteBandwidthRuleScript.execute(bandwidthModel)){
             log.error("Failed to delete flow limit - failed to execute sh script for user with id {}", telegramId);
             sendMessage.setText("Failed to delete flow limit - failed to execute sh script for user with id " + telegramId);
             return sendMessage;

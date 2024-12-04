@@ -1,10 +1,13 @@
 package org.Roclh.handlers.commands.user;
 
+import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
+import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,10 +22,14 @@ public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> {
     private final List<String> disableCommands = List.of("disable", "dis");
 
     private final UserService userService;
+    private final EnableDefaultShadowsocksServerScript enableScript;
+    private final DisableShadowsocksServerScript disableScript;
 
-    public ChangeUserEnabledCommand(TelegramUserService telegramUserService, UserService userService) {
+    public ChangeUserEnabledCommand(TelegramUserService telegramUserService, UserService userService, EnableDefaultShadowsocksServerScript enableScript, DisableShadowsocksServerScript disableScript) {
         super(telegramUserService);
         this.userService = userService;
+        this.enableScript = enableScript;
+        this.disableScript = disableScript;
     }
 
 
@@ -39,8 +46,14 @@ public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
 
+        UserModel userModel = userService.getUser(userId).orElse(null);
+        if (userModel == null) {
+            sendMessage.setText("User does not exists");
+            return sendMessage;
+        }
+
         boolean isEnabled = enableCommands.contains(cmd);
-        if (userService.changeUserEnabled(userId, isEnabled)) {
+        if (changeEnabled(userModel, isEnabled)) {
             sendMessage.setText("User was " + (isEnabled ? "enabled" : "disabled"));
         } else {
             sendMessage.setText("User was not " + (isEnabled ? "enabled" : "disabled"));
@@ -56,5 +69,13 @@ public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> {
     @Override
     public List<String> getCommandNames() {
         return Stream.concat(enableCommands.stream(), disableCommands.stream()).collect(Collectors.toList());
+    }
+
+    public boolean changeEnabled(UserModel userModel, boolean enable) {
+        if (enable) {
+            return enableScript.execute(userModel);
+        } else {
+            return disableScript.execute(userModel);
+        }
     }
 }

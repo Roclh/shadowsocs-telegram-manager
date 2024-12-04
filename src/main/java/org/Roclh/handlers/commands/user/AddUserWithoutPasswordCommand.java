@@ -9,6 +9,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
 import org.Roclh.ss.ShadowsocksProperties;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
@@ -25,12 +26,14 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
     private final UserService userManager;
     private final TelegramBotStorage telegramBotStorage;
     private final ShadowsocksProperties shadowsocksProperties;
+    private final EnableDefaultShadowsocksServerScript enableScript;
 
-    public AddUserWithoutPasswordCommand(TelegramUserService telegramUserService, UserService userManager, TelegramBotStorage telegramBotStorage, ShadowsocksProperties shadowsocksProperties) {
+    public AddUserWithoutPasswordCommand(TelegramUserService telegramUserService, UserService userManager, TelegramBotStorage telegramBotStorage, ShadowsocksProperties shadowsocksProperties, EnableDefaultShadowsocksServerScript enableScript) {
         super(telegramUserService);
         this.userManager = userManager;
         this.telegramBotStorage = telegramBotStorage;
         this.shadowsocksProperties = shadowsocksProperties;
+        this.enableScript = enableScript;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
                 .isAdded(true)
                 .build();
 
-        if (!userManager.executeShScriptAddUser(userModel)) {
+        if (!enableScript.execute(userModel)) {
             log.error("Failed to add user - failed to execute sh script for user with id {}", telegramId);
             sendMessage.setText("Failed to add user - failed to execute sh script for user with id " + telegramId);
             return sendMessage;

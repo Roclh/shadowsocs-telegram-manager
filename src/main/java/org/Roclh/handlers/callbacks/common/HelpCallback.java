@@ -8,6 +8,7 @@ import org.Roclh.handlers.callbacks.AbstractCallback;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.i18n.EmojiConstants;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -34,7 +35,7 @@ public class HelpCallback extends AbstractCallback<EditMessageText> {
     @Override
     public List<InlineKeyboardButton> getCallbackButtonRow() {
         return List.of(InlineKeyboardButton.builder()
-                .text(i18N.get("callback.common.help.inline.button"))
+                .text(EmojiConstants.QUESTIONMARK + i18N.get("callback.common.help.inline.button"))
                 .callbackData(getName())
                 .build());
     }

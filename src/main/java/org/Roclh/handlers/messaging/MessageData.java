@@ -3,6 +3,7 @@ package org.Roclh.handlers.messaging;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.Locale;
 
@@ -15,6 +16,7 @@ public class MessageData {
     private Long telegramId;
     @NonNull
     private Long chatId;
+    @Nullable
     private Integer messageId;
     @NonNull
     private Locale locale;
