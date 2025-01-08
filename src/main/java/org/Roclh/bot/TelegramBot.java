@@ -76,13 +76,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         try {
             if (sendMessage instanceof BotApiMethod<T>) {
-                execute((BotApiMethod<T>) sendMessage);
+                executeAsync((BotApiMethod<T>) sendMessage);
             } else if (sendMessage instanceof SendMediaGroup) {
-                execute((SendMediaGroup) sendMessage);
+                executeAsync((SendMediaGroup) sendMessage);
             } else if (sendMessage instanceof SendPhoto) {
-                execute((SendPhoto) sendMessage);
+                executeAsync((SendPhoto) sendMessage);
             } else if (sendMessage instanceof SendDocument) {
-                execute((SendDocument) sendMessage);
+                executeAsync((SendDocument) sendMessage);
             }
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
